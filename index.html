@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Task Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            padding: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        #taskInput {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            color: #888;
+        }
+
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .categories {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .categories button {
+            flex: 1;
+            opacity: 0.7;
+        }
+
+        #tasksBtn {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="taskSection" style="display: none;">
+        <input type="text" id="taskInput" placeholder="New task...">
+        <button onclick="addTask()">Add</button>
+    </div>
+    <div id="taskList"></div>
+
+    <div class="categories" style="position: fixed; bottom: 0; left: 0; right: 0; padding: 20px; background: white;">
+        <button onclick="switchCategory('fight')" id="fightBtn">Fight</button>
+        <button onclick="switchCategory('leaders')" id="leadersBtn">Leaders</button>
+        <button onclick="switchCategory('tasks')" id="tasksBtn">Tasks</button>
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        // Initialize Telegram Web App
+        Telegram.WebApp.ready();
+
+        // Current active category
+        let currentCategory = 'tasks';
+
+        // Load tasks from localStorage with categories
+        let tasks = JSON.parse(localStorage.getItem('categorizedTasks')) || {
+            fight: [],
+            leaders: [],
+            tasks: []
+        };
+
+        function switchCategory(category) {
+            currentCategory = category;
+            // Update active button visual
+            document.querySelectorAll('.categories button').forEach(btn => {
+                btn.style.opacity = '0.7';
+            });
+            document.getElementById(`${category}Btn`).style.opacity = '1';
+
+            // Show/hide task input section based on category
+            document.getElementById('taskSection').style.display =
+                category === 'tasks' ? 'block' : 'none';
+
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const list = document.getElementById('taskList');
+            list.innerHTML = '';
+            tasks[currentCategory].forEach((task, index) => {
+                const div = document.createElement('div');
+                div.className = 'task-item';
+                if (task.completed) div.classList.add('completed');
+
+                div.innerHTML = `
+                    <input type="checkbox" ${task.completed ? 'checked' : ''} 
+                           onchange="toggleTask(${index})">
+                    <span>${task.text}</span>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        function addTask() {
+            const input = document.getElementById('taskInput');
+            if (input.value.trim()) {
+                tasks[currentCategory].push({ text: input.value, completed: false });
+                input.value = '';
+                saveTasks();
+                renderTasks();
+            }
+        }
+
+        function toggleTask(index) {
+            tasks[currentCategory][index].completed = !tasks[currentCategory][index].completed;
+            saveTasks();
+            renderTasks();
+        }
+
+        function saveTasks() {
+            localStorage.setItem('categorizedTasks', JSON.stringify(tasks));
+        }
+
+        // Initial render
+        renderTasks();
+    </script>
+</body>
+
+</html>
