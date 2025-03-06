@@ -39,11 +39,31 @@
             border-radius: 4px;
             cursor: pointer;
         }
+
+        .categories {
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .categories button {
+            flex: 1;
+            opacity: 0.7;
+        }
+
+        #tasksBtn {
+            opacity: 1;
+        }
     </style>
 </head>
 
 <body>
-    <h2>My Tasks</h2>
+    <h2>My Categories</h2>
+    <div class="categories">
+        <button onclick="switchCategory('fight')" id="fightBtn">Fight</button>
+        <button onclick="switchCategory('leaders')" id="leadersBtn">Leaders</button>
+        <button onclick="switchCategory('tasks')" id="tasksBtn">Tasks</button>
+    </div>
     <input type="text" id="taskInput" placeholder="New task...">
     <button onclick="addTask()">Add</button>
     <div id="taskList"></div>
@@ -53,13 +73,30 @@
         // Initialize Telegram Web App
         Telegram.WebApp.ready();
 
-        // Load tasks from localStorage
-        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        // Current active category
+        let currentCategory = 'tasks';
+
+        // Load tasks from localStorage with categories
+        let tasks = JSON.parse(localStorage.getItem('categorizedTasks')) || {
+            fight: [],
+            leaders: [],
+            tasks: []
+        };
+
+        function switchCategory(category) {
+            currentCategory = category;
+            // Update active button visual
+            document.querySelectorAll('.categories button').forEach(btn => {
+                btn.style.opacity = '0.7';
+            });
+            document.getElementById(`${category}Btn`).style.opacity = '1';
+            renderTasks();
+        }
 
         function renderTasks() {
             const list = document.getElementById('taskList');
             list.innerHTML = '';
-            tasks.forEach((task, index) => {
+            tasks[currentCategory].forEach((task, index) => {
                 const div = document.createElement('div');
                 div.className = 'task-item';
                 if (task.completed) div.classList.add('completed');
@@ -76,7 +113,7 @@
         function addTask() {
             const input = document.getElementById('taskInput');
             if (input.value.trim()) {
-                tasks.push({ text: input.value, completed: false });
+                tasks[currentCategory].push({ text: input.value, completed: false });
                 input.value = '';
                 saveTasks();
                 renderTasks();
@@ -84,13 +121,13 @@
         }
 
         function toggleTask(index) {
-            tasks[index].completed = !tasks[index].completed;
+            tasks[currentCategory][index].completed = !tasks[currentCategory][index].completed;
             saveTasks();
             renderTasks();
         }
 
         function saveTasks() {
-            localStorage.setItem('tasks', JSON.stringify(tasks));
+            localStorage.setItem('categorizedTasks', JSON.stringify(tasks));
         }
 
         // Initial render
