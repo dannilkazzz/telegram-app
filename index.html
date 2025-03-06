@@ -59,14 +59,17 @@
 
 <body>
     <h2>My Categories</h2>
-    <div class="categories">
+    <div id="taskSection" style="display: none;">
+        <input type="text" id="taskInput" placeholder="New task...">
+        <button onclick="addTask()">Add</button>
+    </div>
+    <div id="taskList"></div>
+
+    <div class="categories" style="position: fixed; bottom: 0; left: 0; right: 0; padding: 20px; background: white;">
         <button onclick="switchCategory('fight')" id="fightBtn">Fight</button>
         <button onclick="switchCategory('leaders')" id="leadersBtn">Leaders</button>
         <button onclick="switchCategory('tasks')" id="tasksBtn">Tasks</button>
     </div>
-    <input type="text" id="taskInput" placeholder="New task...">
-    <button onclick="addTask()">Add</button>
-    <div id="taskList"></div>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
@@ -90,6 +93,11 @@
                 btn.style.opacity = '0.7';
             });
             document.getElementById(`${category}Btn`).style.opacity = '1';
+
+            // Show/hide task input section based on category
+            document.getElementById('taskSection').style.display =
+                category === 'tasks' ? 'block' : 'none';
+
             renderTasks();
         }
 
