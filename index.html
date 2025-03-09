@@ -134,6 +134,42 @@
         .byte-button:hover {
             background: var(--accent-color-byte);
         }
+
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .popup {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 80%;
+            text-align: center;
+            border: 1px solid var(--accent-color);
+        }
+
+        .popup.byte-popup {
+            border-color: var(--accent-color-byte);
+        }
+
+        .welcome-amount {
+            font-size: 1.5em;
+            margin: 15px 0;
+            color: var(--accent-color);
+        }
+
+        .byte-popup .welcome-amount {
+            color: var(--accent-color-byte);
+        }
     </style>
 </head>
 
@@ -168,11 +204,22 @@
         </div>
     </div>
 
+    <!-- Welcome Back Popup -->
+    <div class="popup-overlay" id="welcomePopup">
+        <div class="popup" id="welcomePopupContent">
+            <h2>Welcome Back!</h2>
+            <p>While you were away:</p>
+            <div class="welcome-amount" id="welcomeAmount">+$0.00</div>
+            <button onclick="closeWelcomePopup()">Claim Rewards</button>
+        </div>
+    </div>
+
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
         let userTeam = '';
         let userBalance = 0;
         let passiveIncome = 0;
+        let lastOnlineTime = Date.now();
 
         // Initialize game data
         const gameData = {
@@ -182,25 +229,131 @@
                     { name: 'Security', icon: '🔒' },
                     { name: 'Court', icon: '⚖️' }
                 ],
-                firstApp: { name: 'Basic App', income: 1 }
+                firstApp: { name: 'Basic App', income: 1 },
+                apps: [] // Track owned apps
             },
             byte: {
                 categories: [
                     { name: 'Hack', icon: '🔓' },
                     { name: 'Software', icon: '🛠️' }
                 ],
-                firstTool: { name: 'Basic Hack Tool', income: 1 }
+                firstTool: { name: 'Basic Hack Tool', income: 1 },
+                tools: [] // Track owned tools
             }
         };
 
+        // Load saved game data with enhanced error handling
+        function loadGameData() {
+            try {
+                const savedData = localStorage.getItem('devByteGameData');
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+
+                    // Ensure all required properties exist
+                    userTeam = data.team || '';
+                    userBalance = parseFloat(data.balance) || 0;
+                    passiveIncome = parseFloat(data.income) || 0;
+                    lastOnlineTime = parseInt(data.lastOnline) || Date.now();
+
+                    // Load owned items
+                    if (data.ownedItems) {
+                        if (data.team === 'dev') {
+                            gameData.dev.apps = data.ownedItems;
+                        } else {
+                            gameData.byte.tools = data.ownedItems;
+                        }
+                    }
+
+                    // Calculate offline earnings with safety checks
+                    const timeOffline = Math.max(0, (Date.now() - lastOnlineTime) / 1000);
+                    const offlineEarnings = (passiveIncome / 3600) * timeOffline;
+
+                    if (offlineEarnings > 0) {
+                        userBalance += offlineEarnings; // Add offline earnings to balance
+                        showWelcomeBack(offlineEarnings);
+                    }
+
+                    // If user already selected a team, show game interface
+                    if (userTeam) {
+                        document.getElementById('teamSelection').style.display = 'none';
+                        document.getElementById('gameInterface').style.display = 'block';
+                        initializeTeam(userTeam, false);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading game data:', error);
+                // Create backup of corrupted data
+                const corruptedData = localStorage.getItem('devByteGameData');
+                if (corruptedData) {
+                    localStorage.setItem('devByteGameData_backup', corruptedData);
+                }
+            }
+        }
+
+        // Enhanced save game data
+        function saveGameData() {
+            try {
+                const ownedItems = userTeam === 'dev' ? gameData.dev.apps : gameData.byte.tools;
+                const gameDataToSave = {
+                    team: userTeam,
+                    balance: parseFloat(userBalance.toFixed(2)), // Ensure clean number
+                    income: parseFloat(passiveIncome.toFixed(2)), // Ensure clean number
+                    lastOnline: Date.now(),
+                    ownedItems: ownedItems
+                };
+
+                // Create backup of previous save
+                const previousSave = localStorage.getItem('devByteGameData');
+                if (previousSave) {
+                    localStorage.setItem('devByteGameData_previous', previousSave);
+                }
+
+                // Save new data
+                localStorage.setItem('devByteGameData', JSON.stringify(gameDataToSave));
+            } catch (error) {
+                console.error('Error saving game data:', error);
+            }
+        }
+
+        function showWelcomeBack(earnings) {
+            const popup = document.getElementById('welcomePopup');
+            const popupContent = document.getElementById('welcomePopupContent');
+            const amountElement = document.getElementById('welcomeAmount');
+
+            // Set popup style based on team
+            popupContent.className = `popup ${userTeam}-popup`;
+            amountElement.textContent = `+$${earnings.toFixed(2)}`;
+
+            // Show what generated the money
+            const sourceText = userTeam === 'dev' ? 'Your apps have generated:' : 'Your hacking tools have generated:';
+            document.querySelector('#welcomePopupContent p').textContent = sourceText;
+
+            popup.style.display = 'flex';
+        }
+
+        function closeWelcomePopup() {
+            document.getElementById('welcomePopup').style.display = 'none';
+        }
+
         function selectTeam(team) {
+            // Check if user already has saved data
+            const savedData = localStorage.getItem('devByteGameData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                if (data.team) {
+                    // User already has a team, load their data instead
+                    loadGameData();
+                    return;
+                }
+            }
+
             userTeam = team;
             document.getElementById('teamSelection').style.display = 'none';
             document.getElementById('gameInterface').style.display = 'block';
-            initializeTeam(team);
+            initializeTeam(team, true);
         }
 
-        function initializeTeam(team) {
+        function initializeTeam(team, isNewGame) {
             const grid = document.getElementById('categoryGrid');
             const categories = gameData[team].categories;
 
@@ -210,29 +363,31 @@
                 </div>
             `).join('');
 
-            // Give first free item based on team
-            if (team === 'dev') {
+            // Only initialize if it's a completely new game
+            if (isNewGame && !localStorage.getItem('devByteGameData')) {
                 userBalance = 0;
-                passiveIncome = gameData.dev.firstApp.income;
-            } else {
-                userBalance = 0;
-                passiveIncome = gameData.byte.firstTool.income;
+                passiveIncome = team === 'dev' ? gameData.dev.firstApp.income : gameData.byte.firstTool.income;
+
+                // Add first free item
+                const firstItem = team === 'dev' ?
+                    { ...gameData.dev.firstApp } :
+                    { ...gameData.byte.firstTool };
+
+                if (team === 'dev') {
+                    gameData.dev.apps.push(firstItem);
+                } else {
+                    gameData.byte.tools.push(firstItem);
+                }
             }
 
             updateStats();
-            startPassiveIncome();
+            saveGameData();
         }
 
         function updateStats() {
             document.getElementById('balance').textContent = userBalance.toFixed(2);
             document.getElementById('income').textContent = passiveIncome.toFixed(2);
-        }
-
-        function startPassiveIncome() {
-            setInterval(() => {
-                userBalance += passiveIncome / 3600; // Convert hourly rate to per-second
-                updateStats();
-            }, 1000);
+            saveGameData();
         }
 
         function showSection(section) {
@@ -240,8 +395,12 @@
             console.log('Showing section:', section);
         }
 
-        // Initialize Telegram Web App
+        // Auto-save every minute in addition to other save points
+        setInterval(saveGameData, 60000);
+
+        // Initialize Telegram Web App and load saved data
         Telegram.WebApp.ready();
+        loadGameData();
     </script>
 </body>
 
