@@ -2,146 +2,246 @@
 <html>
 
 <head>
-    <title>Task Manager</title>
+    <title>Dev vs Byte</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
+        :root {
+            --background-dark: #1a1a1a;
+            --background-darker: #121212;
+            --accent-color: #00ff9d;
+            --accent-color-byte: #ff4757;
+            --text-color: #ffffff;
+            --card-bg: #2a2a2a;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-dark);
+            color: var(--text-color);
+            min-height: 100vh;
+        }
+
+        /* Team Selection Screen */
+        #teamSelection {
+            height: 100vh;
+            display: flex;
+        }
+
+        .team-half {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .team-half:hover {
+            flex: 1.2;
+        }
+
+        #devTeam {
+            background: linear-gradient(45deg, var(--background-darker), #1a4a3c);
+            border-right: 1px solid var(--accent-color);
+        }
+
+        #byteTeam {
+            background: linear-gradient(45deg, var(--background-darker), #4a1a1a);
+            border-left: 1px solid var(--accent-color-byte);
+        }
+
+        /* Game Interface */
+        #gameInterface {
+            display: none;
             padding: 20px;
-            max-width: 400px;
-            margin: 0 auto;
         }
 
-        #taskInput {
-            width: calc(100% - 22px);
-            padding: 10px;
-            margin-bottom: 15px;
-        }
-
-        .task-item {
+        .stats-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--background-darker);
+            padding: 15px;
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            padding: 10px;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--accent-color);
         }
 
-        .completed {
-            text-decoration: line-through;
-            color: #888;
+        .category-grid {
+            margin-top: 70px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding: 15px;
+        }
+
+        .category-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .dev-card {
+            border: 1px solid var(--accent-color);
+        }
+
+        .byte-card {
+            border: 1px solid var(--accent-color-byte);
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--background-darker);
+            padding: 15px;
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid var(--accent-color);
         }
 
         button {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--accent-color);
+            padding: 10px 20px;
+            border-radius: 5px;
             cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        .categories {
-            margin-bottom: 15px;
-            display: flex;
-            gap: 10px;
+        button:hover {
+            background: var(--accent-color);
+            color: var(--background-dark);
         }
 
-        .categories button {
-            flex: 1;
-            opacity: 0.7;
+        .byte-button {
+            border-color: var(--accent-color-byte);
         }
 
-        #tasksBtn {
-            opacity: 1;
+        .byte-button:hover {
+            background: var(--accent-color-byte);
         }
     </style>
 </head>
 
 <body>
-    <h2>My Categories</h2>
-
-    <h2>My Bot</h2>
-    <div id="taskSection" style="display: none;">
-        <input type="text" id="taskInput" placeholder="New task...">
-        <button onclick="addTask()">Add</button>
+    <!-- Team Selection Screen -->
+    <div id="teamSelection">
+        <div id="devTeam" class="team-half" onclick="selectTeam('dev')">
+            <h2>DEV</h2>
+            <p>Create Apps & Mine Money</p>
+        </div>
+        <div id="byteTeam" class="team-half" onclick="selectTeam('byte')">
+            <h2>BYTE</h2>
+            <p>Hack & Exploit</p>
+        </div>
     </div>
-    <div id="taskList"></div>
 
-    <div class="categories" style="position: fixed; bottom: 0; left: 0; right: 0; padding: 20px; background: white;">
-        <button onclick="switchCategory('fight')" id="fightBtn">Fight</button>
-        <button onclick="switchCategory('leaders')" id="leadersBtn">Leaders</button>
-        <button onclick="switchCategory('tasks')" id="tasksBtn">Tasks</button>
+    <!-- Game Interface -->
+    <div id="gameInterface">
+        <div class="stats-bar">
+            <div>Balance: <span id="balance">0</span>$</div>
+            <div>Income: <span id="income">0</span>$/hr</div>
+        </div>
+
+        <div class="category-grid" id="categoryGrid">
+            <!-- Categories will be dynamically populated based on team -->
+        </div>
+
+        <div class="navigation">
+            <button onclick="showSection('main')">Main</button>
+            <button onclick="showSection('tasks')">Tasks</button>
+            <button onclick="showSection('leaders')">Leaders</button>
+        </div>
     </div>
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script>
-        // Initialize Telegram Web App
-        Telegram.WebApp.ready();
+        let userTeam = '';
+        let userBalance = 0;
+        let passiveIncome = 0;
 
-        // Current active category
-        let currentCategory = 'tasks';
-
-        // Load tasks from localStorage with categories
-        let tasks = JSON.parse(localStorage.getItem('categorizedTasks')) || {
-            fight: [],
-            leaders: [],
-            tasks: []
+        // Initialize game data
+        const gameData = {
+            dev: {
+                categories: [
+                    { name: 'Apps', icon: '💻' },
+                    { name: 'Security', icon: '🔒' },
+                    { name: 'Court', icon: '⚖️' }
+                ],
+                firstApp: { name: 'Basic App', income: 1 }
+            },
+            byte: {
+                categories: [
+                    { name: 'Hack', icon: '🔓' },
+                    { name: 'Software', icon: '🛠️' }
+                ],
+                firstTool: { name: 'Basic Hack Tool', income: 1 }
+            }
         };
 
-        function switchCategory(category) {
-            currentCategory = category;
-            // Update active button visual
-            document.querySelectorAll('.categories button').forEach(btn => {
-                btn.style.opacity = '0.7';
-            });
-            document.getElementById(`${category}Btn`).style.opacity = '1';
-
-            // Show/hide task input section based on category
-            document.getElementById('taskSection').style.display =
-                category === 'tasks' ? 'block' : 'none';
-
-            renderTasks();
+        function selectTeam(team) {
+            userTeam = team;
+            document.getElementById('teamSelection').style.display = 'none';
+            document.getElementById('gameInterface').style.display = 'block';
+            initializeTeam(team);
         }
 
-        function renderTasks() {
-            const list = document.getElementById('taskList');
-            list.innerHTML = '';
-            tasks[currentCategory].forEach((task, index) => {
-                const div = document.createElement('div');
-                div.className = 'task-item';
-                if (task.completed) div.classList.add('completed');
+        function initializeTeam(team) {
+            const grid = document.getElementById('categoryGrid');
+            const categories = gameData[team].categories;
 
-                div.innerHTML = `
-                    <input type="checkbox" ${task.completed ? 'checked' : ''} 
-                           onchange="toggleTask(${index})">
-                    <span>${task.text}</span>
-                `;
-                list.appendChild(div);
-            });
-        }
+            grid.innerHTML = categories.map(cat => `
+                <div class="category-card ${team}-card">
+                    <h3>${cat.icon} ${cat.name}</h3>
+                </div>
+            `).join('');
 
-        function addTask() {
-            const input = document.getElementById('taskInput');
-            if (input.value.trim()) {
-                tasks[currentCategory].push({ text: input.value, completed: false });
-                input.value = '';
-                saveTasks();
-                renderTasks();
+            // Give first free item based on team
+            if (team === 'dev') {
+                userBalance = 0;
+                passiveIncome = gameData.dev.firstApp.income;
+            } else {
+                userBalance = 0;
+                passiveIncome = gameData.byte.firstTool.income;
             }
+
+            updateStats();
+            startPassiveIncome();
         }
 
-        function toggleTask(index) {
-            tasks[currentCategory][index].completed = !tasks[currentCategory][index].completed;
-            saveTasks();
-            renderTasks();
+        function updateStats() {
+            document.getElementById('balance').textContent = userBalance.toFixed(2);
+            document.getElementById('income').textContent = passiveIncome.toFixed(2);
         }
 
-        function saveTasks() {
-            localStorage.setItem('categorizedTasks', JSON.stringify(tasks));
+        function startPassiveIncome() {
+            setInterval(() => {
+                userBalance += passiveIncome / 3600; // Convert hourly rate to per-second
+                updateStats();
+            }, 1000);
         }
 
-        // Initial render
-        renderTasks();
+        function showSection(section) {
+            // Implementation for navigation between sections
+            console.log('Showing section:', section);
+        }
+
+        // Initialize Telegram Web App
+        Telegram.WebApp.ready();
     </script>
 </body>
 
