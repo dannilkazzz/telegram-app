@@ -68,6 +68,7 @@
             padding: 15px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
             border-bottom: 1px solid var(--accent-color);
         }
 
@@ -170,6 +171,47 @@
         .byte-popup .welcome-amount {
             color: var(--accent-color-byte);
         }
+
+        .change-team-btn {
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--accent-color);
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .change-team-btn:hover {
+            background: var(--accent-color);
+            color: var(--background-dark);
+        }
+
+        .confirmation-popup {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 80%;
+            text-align: center;
+            border: 2px solid var(--accent-color);
+        }
+
+        .confirmation-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .confirm-btn {
+            background: #ff4757;
+            border-color: #ff4757;
+        }
+
+        .confirm-btn:hover {
+            background: #ff6b81;
+        }
     </style>
 </head>
 
@@ -191,6 +233,7 @@
         <div class="stats-bar">
             <div>Balance: <span id="balance">0</span>$</div>
             <div>Income: <span id="income">0</span>$/hr</div>
+            <button class="change-team-btn" onclick="showChangeTeamConfirmation()">Change Team</button>
         </div>
 
         <div class="category-grid" id="categoryGrid">
@@ -211,6 +254,19 @@
             <p>While you were away:</p>
             <div class="welcome-amount" id="welcomeAmount">+$0.00</div>
             <button onclick="closeWelcomePopup()">Claim Rewards</button>
+        </div>
+    </div>
+
+    <!-- Add new confirmation popup after the welcome popup -->
+    <div class="popup-overlay" id="changeTeamPopup">
+        <div class="popup confirmation-popup">
+            <h2>⚠️ Warning ⚠️</h2>
+            <p>Changing team will reset all your progress!</p>
+            <p>Your current progress will be lost.</p>
+            <div class="confirmation-buttons">
+                <button onclick="hideChangeTeamConfirmation()">Cancel</button>
+                <button class="confirm-btn" onclick="resetAndChangeTeam()">Reset & Change Team</button>
+            </div>
         </div>
     </div>
 
@@ -401,6 +457,35 @@
         // Initialize Telegram Web App and load saved data
         Telegram.WebApp.ready();
         loadGameData();
+
+        function showChangeTeamConfirmation() {
+            document.getElementById('changeTeamPopup').style.display = 'flex';
+        }
+
+        function hideChangeTeamConfirmation() {
+            document.getElementById('changeTeamPopup').style.display = 'none';
+        }
+
+        function resetAndChangeTeam() {
+            // Clear all game data
+            localStorage.removeItem('devByteGameData');
+            localStorage.removeItem('devByteGameData_previous');
+            localStorage.removeItem('devByteGameData_backup');
+
+            // Reset variables
+            userBalance = 0;
+            passiveIncome = 0;
+            userTeam = '';
+            gameData.dev.apps = [];
+            gameData.byte.tools = [];
+
+            // Hide game interface and confirmation
+            document.getElementById('gameInterface').style.display = 'none';
+            document.getElementById('changeTeamPopup').style.display = 'none';
+
+            // Show team selection
+            document.getElementById('teamSelection').style.display = 'flex';
+        }
     </script>
 </body>
 
