@@ -331,22 +331,36 @@
             align-items: center;
             padding: 10px;
             border-bottom: 1px solid #333;
-            gap: 10px;
+            gap: 15px;
         }
 
         .check-task-btn {
             background: var(--card-bg);
             color: var(--text-color);
             border: 1px solid var(--accent-color);
-            padding: 5px 10px;
+            padding: 8px 16px;
             border-radius: 5px;
             font-size: 0.9em;
             cursor: pointer;
+            min-width: 70px;
+            transition: all 0.2s ease;
+        }
+
+        .check-task-btn:hover:not(:disabled) {
+            background: var(--accent-color);
+            color: var(--background-dark);
         }
 
         .check-task-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            border-color: #444;
+        }
+
+        .check-task-btn[disabled="true"] {
+            background: var(--accent-color);
+            color: var(--background-dark);
+            opacity: 0.7;
         }
 
         .task-progress {
@@ -357,6 +371,58 @@
 
         .task-reward {
             color: var(--accent-color);
+            font-weight: 500;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        /* Add styles for hack list popup */
+        .hack-list-popup {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 90%;
+            width: 400px;
+            border: 2px solid var(--accent-color-byte);
+        }
+
+        .hack-target {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #333;
+            gap: 15px;
+        }
+
+        .hack-target-info {
+            text-align: left;
+        }
+
+        .hack-target-stats {
+            font-size: 0.8em;
+            color: #666;
+        }
+
+        .hack-button {
+            background: var(--card-bg);
+            color: var(--accent-color-byte);
+            border: 1px solid var(--accent-color-byte);
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .hack-button:hover {
+            background: var(--accent-color-byte);
+            color: var(--background-dark);
+        }
+
+        .hack-cost {
+            color: var(--accent-color-byte);
+            font-size: 0.9em;
+            margin-top: 4px;
         }
     </style>
 </head>
@@ -622,7 +688,7 @@
             const categories = gameData[team].categories;
 
             grid.innerHTML = categories.map(cat => `
-                <div class="category-card ${team}-card">
+                <div class="category-card ${team}-card" onclick="handleCategoryClick('${cat.name.toLowerCase()}')">
                     <h3>${cat.icon} ${cat.name}</h3>
                 </div>
             `).join('');
@@ -649,8 +715,8 @@
         }
 
         function updateStats() {
-            document.getElementById('balance').textContent = userBalance.toFixed(2);
-            document.getElementById('income').textContent = passiveIncome.toFixed(2);
+            document.getElementById('balance').textContent = formatBalance(userBalance);
+            document.getElementById('income').textContent = formatBalance(passiveIncome);
             saveGameData();
         }
 
@@ -957,6 +1023,123 @@
             updateLeaderboards();
             updateTasks();
         });
+
+        // Format balance to use K and M for large numbers
+        function formatBalance(balance) {
+            if (balance >= 1000000) {
+                return (balance / 1000000).toFixed(1) + 'M';
+            } else if (balance >= 1000) {
+                return (balance / 1000).toFixed(1) + 'K';
+            }
+            return balance.toFixed(2);
+        }
+
+        // Update the hackable targets with more test users and apps
+        function getHackableTargets() {
+            const targets = [
+                { name: 'Shopping App', owner: '@developer123', security: 2, balance: 5000, income: 50 },
+                { name: 'Social Network', owner: '@techguru', security: 3, balance: 8000, income: 80 },
+                { name: 'Game Platform', owner: '@gamer444', security: 1, balance: 3000, income: 30 },
+                { name: 'Payment System', owner: '@fintech', security: 4, balance: 12000, income: 120 },
+                { name: 'Dating App', owner: '@coder777', security: 2, balance: 7500, income: 75 },
+                { name: 'Food Delivery', owner: '@foodtech', security: 1, balance: 4000, income: 40 },
+                { name: 'Crypto Wallet', owner: '@cryptodev', security: 5, balance: 25000, income: 250 },
+                { name: 'Streaming App', owner: '@mediadev', security: 3, balance: 15000, income: 150 },
+                { name: 'Super App', owner: '@roluxy', security: 10, balance: 1000000, income: 10000 }
+            ];
+
+            // Sort targets by security level
+            return targets.sort((a, b) => a.security - b.security);
+        }
+
+        function showHackList() {
+            const hackableTargets = getHackableTargets();
+            const buttons = hackableTargets.map(target => {
+                const baseHackCost = 100;
+                const hackCost = baseHackCost * (target.security * 1.5);
+                return {
+                    type: 'default',
+                    text: `${target.name} (👤${target.owner}) - 🔒${target.security} - $${formatBalance(hackCost)}`,
+                    id: `hack_${target.name.toLowerCase().replace(/\s+/g, '_')}`
+                };
+            });
+
+            Telegram.WebApp.showPopup({
+                title: '🔓 Available Targets',
+                message: 'Choose an app to hack:\n\n💰 Higher security = Higher cost\n⚡ More tools = Better success rate\n💼 Higher security = More reward',
+                buttons: [...buttons, { type: 'cancel', text: 'Cancel' }]
+            }, (buttonId) => {
+                if (buttonId && buttonId.startsWith('hack_')) {
+                    const targetName = buttonId.replace('hack_', '').replace(/_/g, ' ');
+                    const target = hackableTargets.find(t =>
+                        t.name.toLowerCase() === targetName.toLowerCase()
+                    );
+
+                    if (target) {
+                        const baseHackCost = 100;
+                        const hackCost = baseHackCost * (target.security * 1.5);
+                        attemptHack(target, hackCost);
+                    }
+                }
+            });
+        }
+
+        function attemptHack(target, hackCost) {
+            // Calculate hack cost based on target's security level
+            const baseHackCost = 100;
+            const actualHackCost = baseHackCost * (target.security * 1.5);
+
+            if (userBalance < actualHackCost) {
+                Telegram.WebApp.showPopup({
+                    title: 'Insufficient Funds',
+                    message: `You need $${formatBalance(actualHackCost)} to attempt hacking this app.`,
+                    buttons: [{ type: 'ok', text: 'OK' }]
+                });
+                return;
+            }
+
+            // Calculate success chance based on security level and hacker's tools
+            const hackerLevel = gameData.byte.tools.length;
+            const baseSuccessChance = 0.4; // 40% base chance
+            const securityImpact = target.security * 0.15; // Each security level reduces chance by 15%
+            const toolBonus = hackerLevel * 0.1; // Each tool adds 10% chance
+            const successChance = Math.max(0.05, Math.min(0.95, baseSuccessChance - securityImpact + toolBonus));
+
+            // Attempt the hack
+            userBalance -= actualHackCost; // Pay the hack cost
+
+            if (Math.random() < successChance) {
+                // Successful hack
+                const stolenAmount = Math.floor(target.balance * 0.2); // Steal 20% of target's balance
+                userBalance += stolenAmount;
+                gameData.byte.stats.systemsHacked++;
+                gameData.byte.stats.appsHacked++;
+                gameData.byte.stats.operationsCompleted++;
+
+                Telegram.WebApp.showPopup({
+                    title: '✅ Hack Successful!',
+                    message: `You successfully hacked ${target.name}!\n\n💰 Stolen: $${formatBalance(stolenAmount)}\n🎯 Success Rate: ${(successChance * 100).toFixed(1)}%\n💵 Cost: $${formatBalance(actualHackCost)}`,
+                    buttons: [{ type: 'ok', text: 'Nice!' }]
+                });
+            } else {
+                // Failed hack
+                Telegram.WebApp.showPopup({
+                    title: '❌ Hack Failed',
+                    message: `The security system detected your attempt.\n\n💸 Lost: $${formatBalance(actualHackCost)}\n🎯 Success Rate: ${(successChance * 100).toFixed(1)}%`,
+                    buttons: [{ type: 'ok', text: 'Damn!' }]
+                });
+            }
+
+            updateStats();
+            saveGameData();
+        }
+
+        function handleCategoryClick(category) {
+            if (category === 'hack' && userTeam === 'byte') {
+                showHackList();
+            }
+            // Handle other categories...
+        }
     </script>
 </body>
 
