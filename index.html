@@ -707,22 +707,52 @@
             ]
         };
 
-        // Test data for tasks
+        // Update the tasks data structure to separate by team
         const tasksData = {
-            limited: [
-                { title: 'Create 5 apps', reward: 1000, time: '2 days left' },
-                { title: 'Hack 3 high-security systems', reward: 800, time: '1 day left' }
-            ],
-            daily: [
-                { title: 'Login to the game', reward: 100 },
-                { title: 'Upgrade one item', reward: 200 },
-                { title: 'Complete 3 operations', reward: 300 }
-            ],
-            regular: [
-                { title: 'Reach 100$/hr income', reward: 500 },
-                { title: 'Own 10 items', reward: 1000 },
-                { title: 'Complete 50 operations', reward: 2000 }
-            ]
+            limited: {
+                dev: [
+                    { title: 'Create 5 apps', reward: 1000, time: '2 days left' },
+                    { title: 'Upgrade security level to 3', reward: 800, time: '1 day left' },
+                    { title: 'Win 3 court cases', reward: 1200, time: '3 days left' }
+                ],
+                byte: [
+                    { title: 'Hack 3 high-security systems', reward: 1000, time: '2 days left' },
+                    { title: 'Develop advanced hacking software', reward: 800, time: '1 day left' },
+                    { title: 'Successfully hack 5 apps', reward: 1200, time: '3 days left' }
+                ]
+            },
+            daily: {
+                dev: [
+                    { title: 'Create a new app', reward: 200 },
+                    { title: 'Upgrade security system', reward: 300 },
+                    { title: 'File a court case', reward: 250 }
+                ],
+                byte: [
+                    { title: 'Attempt to hack an app', reward: 200 },
+                    { title: 'Upgrade hacking software', reward: 300 },
+                    { title: 'Develop new exploit', reward: 250 }
+                ],
+                common: [
+                    { title: 'Login to the game', reward: 100 },
+                    { title: 'Complete 3 operations', reward: 300 }
+                ]
+            },
+            regular: {
+                dev: [
+                    { title: 'Own 5 apps', reward: 1000 },
+                    { title: 'Reach security level 5', reward: 2000 },
+                    { title: 'Win 10 court cases', reward: 3000 }
+                ],
+                byte: [
+                    { title: 'Create 3 hacking tools', reward: 1000 },
+                    { title: 'Successfully hack 20 apps', reward: 2000 },
+                    { title: 'Develop 5 advanced exploits', reward: 3000 }
+                ],
+                common: [
+                    { title: 'Reach 100$/hr income', reward: 500 },
+                    { title: 'Complete 50 operations', reward: 2000 }
+                ]
+            }
         };
 
         function updateLeaderboards() {
@@ -751,21 +781,35 @@
         }
 
         function updateTasks() {
-            document.getElementById('limitedTasks').innerHTML = tasksData.limited.map(task => `
+            // Get tasks based on user's team
+            const limitedTasks = tasksData.limited[userTeam] || [];
+            const dailyTasks = [
+                ...(tasksData.daily[userTeam] || []),
+                ...tasksData.daily.common
+            ];
+            const regularTasks = [
+                ...(tasksData.regular[userTeam] || []),
+                ...tasksData.regular.common
+            ];
+
+            // Update limited tasks
+            document.getElementById('limitedTasks').innerHTML = limitedTasks.map(task => `
                 <div class="task-item">
                     <div>${task.title} (${task.time})</div>
                     <div class="task-reward">+$${task.reward}</div>
                 </div>
             `).join('');
 
-            document.getElementById('dailyTasks').innerHTML = tasksData.daily.map(task => `
+            // Update daily tasks
+            document.getElementById('dailyTasks').innerHTML = dailyTasks.map(task => `
                 <div class="task-item">
                     <div>${task.title}</div>
                     <div class="task-reward">+$${task.reward}</div>
                 </div>
             `).join('');
 
-            document.getElementById('regularTasks').innerHTML = tasksData.regular.map(task => `
+            // Update regular tasks
+            document.getElementById('regularTasks').innerHTML = regularTasks.map(task => `
                 <div class="task-item">
                     <div>${task.title}</div>
                     <div class="task-reward">+$${task.reward}</div>
