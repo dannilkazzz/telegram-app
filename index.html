@@ -687,11 +687,25 @@
             const grid = document.getElementById('categoryGrid');
             const categories = gameData[team].categories;
 
+            // Add direct event listeners instead of inline onclick
             grid.innerHTML = categories.map(cat => `
-                <div class="category-card ${team}-card" data-category="${cat.name.toLowerCase()}" onclick="handleCategoryClick('${cat.name.toLowerCase()}')">
+                <div class="category-card ${team}-card" data-category="${cat.name.toLowerCase()}">
                     <h3>${cat.icon} ${cat.name}</h3>
                 </div>
             `).join('');
+
+            // Add event listeners after creating the elements
+            document.querySelectorAll('.category-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const category = card.getAttribute('data-category');
+                    console.log('Category clicked:', category, 'Team:', userTeam); // Debug log
+
+                    if (category === 'hack' && userTeam === 'byte') {
+                        console.log('Attempting to show hack list...'); // Debug log
+                        showHackList();
+                    }
+                });
+            });
 
             // Only initialize if it's a completely new game
             if (isNewGame && !localStorage.getItem('devByteGameData')) {
@@ -1133,17 +1147,6 @@
 
             updateStats();
             saveGameData();
-        }
-
-        function handleCategoryClick(category) {
-            console.log('Category clicked:', category, 'Team:', userTeam); // Enhanced debug log
-
-            if (category === 'hack' && userTeam === 'byte') {
-                console.log('Showing hack list...'); // Debug log
-                showHackList();
-            } else {
-                console.log('Category not implemented:', category); // Debug log for other categories
-            }
         }
     </script>
 </body>
