@@ -687,21 +687,12 @@
             const grid = document.getElementById('categoryGrid');
             const categories = gameData[team].categories;
 
-            grid.innerHTML = '';  // Clear the grid first
-
-            categories.forEach(cat => {
-                const card = document.createElement('div');
-                card.className = `category-card ${team}-card`;
-                card.innerHTML = `<h3>${cat.icon} ${cat.name}</h3>`;
-
-                card.onclick = function () {
-                    if (cat.name === 'Hack' && team === 'byte') {
-                        showHackList();
-                    }
-                };
-
-                grid.appendChild(card);
-            });
+            // Use direct onclick in the HTML
+            grid.innerHTML = categories.map(cat => `
+                <div class="category-card ${team}-card" onclick="categoryClicked('${cat.name}')">
+                    <h3>${cat.icon} ${cat.name}</h3>
+                </div>
+            `).join('');
 
             // Only initialize if it's a completely new game
             if (isNewGame && !localStorage.getItem('devByteGameData')) {
@@ -1143,6 +1134,13 @@
 
             updateStats();
             saveGameData();
+        }
+
+        function categoryClicked(name) {
+            console.log('Category clicked:', name, 'Current team:', userTeam);
+            if (name === 'Hack' && userTeam === 'byte') {
+                showHackList();
+            }
         }
     </script>
 </body>
