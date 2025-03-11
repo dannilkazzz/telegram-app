@@ -688,7 +688,7 @@
             const categories = gameData[team].categories;
 
             grid.innerHTML = categories.map(cat => `
-                <div class="category-card ${team}-card" onclick="handleCategoryClick('${cat.name.toLowerCase()}')">
+                <div class="category-card ${team}-card" data-category="${cat.name.toLowerCase()}" onclick="handleCategoryClick('${cat.name.toLowerCase()}')">
                     <h3>${cat.icon} ${cat.name}</h3>
                 </div>
             `).join('');
@@ -1053,6 +1053,7 @@
         }
 
         function showHackList() {
+            console.log('Showing hack list popup...'); // Debug log
             const hackableTargets = getHackableTargets();
             const buttons = hackableTargets.map(target => {
                 const baseHackCost = 100;
@@ -1135,11 +1136,14 @@
         }
 
         function handleCategoryClick(category) {
-            console.log('Category clicked:', category); // Debug log
+            console.log('Category clicked:', category, 'Team:', userTeam); // Enhanced debug log
+
             if (category === 'hack' && userTeam === 'byte') {
+                console.log('Showing hack list...'); // Debug log
                 showHackList();
+            } else {
+                console.log('Category not implemented:', category); // Debug log for other categories
             }
-            // Handle other categories...
         }
     </script>
 </body>
