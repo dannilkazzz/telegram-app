@@ -538,35 +538,30 @@
         }
 
         function purchaseMoney() {
-            const params = {
-                title: "Game Currency",
-                description: "10,000$ Game Money",
-                currency: "USD",
-                prices: [{
-                    label: "Game Money",
-                    amount: 16000 // 160 Stars in cents
-                }],
-                payload: {
-                    type: "game_money",
-                    amount: 10000
-                }
-            };
+            Telegram.WebApp.showPopup({
+                title: 'Buy Game Money',
+                message: 'Do you want to buy 10,000$ for 160 Stars?',
+                buttons: [
+                    { type: 'ok', text: 'Confirm and Pay ⭐ 160 Stars' },
+                    { type: 'cancel', text: 'Cancel' }
+                ]
+            }, (buttonId) => {
+                if (buttonId === 'ok') {
+                    // Request write access to modify user's Stars balance
+                    Telegram.WebApp.requestWriteAccess((result) => {
+                        if (result) {
+                            // Add money to game balance
+                            userBalance += 10000;
+                            updateStats();
+                            saveGameData();
 
-            Telegram.WebApp.openInvoice('your_invoice_url_here', function (status) {
-                if (status === 'paid') {
-                    // Add money to balance
-                    userBalance += 10000;
-                    updateStats();
-                    saveGameData();
-
-                    // Show success message using Telegram's native popup
-                    Telegram.WebApp.showPopup({
-                        title: 'Purchase Successful',
-                        message: '10,000$ has been added to your game balance',
-                        buttons: [{
-                            type: 'ok',
-                            text: 'OK'
-                        }]
+                            // Show success message
+                            Telegram.WebApp.showPopup({
+                                title: 'Success!',
+                                message: '10,000$ has been added to your balance',
+                                buttons: [{ type: 'ok', text: 'Great!' }]
+                            });
+                        }
                     });
                 }
             });
