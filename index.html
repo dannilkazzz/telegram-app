@@ -326,11 +326,33 @@
         }
 
         .task-item {
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: 1fr auto auto;
             align-items: center;
             padding: 10px;
             border-bottom: 1px solid #333;
+            gap: 10px;
+        }
+
+        .check-task-btn {
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--accent-color);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            cursor: pointer;
+        }
+
+        .check-task-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .task-progress {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 4px;
         }
 
         .task-reward {
@@ -443,7 +465,13 @@
                     { name: 'Court', icon: '⚖️' }
                 ],
                 firstApp: { name: 'Basic App', income: 1 },
-                apps: [] // Track owned apps
+                apps: [], // Track owned apps
+                stats: {
+                    appsCreated: 0,
+                    securityLevel: 1,
+                    courtCasesWon: 0,
+                    operationsCompleted: 0
+                }
             },
             byte: {
                 categories: [
@@ -451,7 +479,18 @@
                     { name: 'Software', icon: '🛠️' }
                 ],
                 firstTool: { name: 'Basic Hack Tool', income: 1 },
-                tools: [] // Track owned tools
+                tools: [], // Track owned tools
+                stats: {
+                    systemsHacked: 0,
+                    softwareCreated: 0,
+                    appsHacked: 0,
+                    operationsCompleted: 0
+                }
+            },
+            taskProgress: {
+                dailyTasks: {},
+                limitedTasks: {},
+                regularTasks: {}
             }
         };
 
@@ -475,6 +514,16 @@
                         } else {
                             gameData.byte.tools = data.ownedItems;
                         }
+                    }
+
+                    // Load task progress
+                    if (data.taskProgress) {
+                        gameData.taskProgress = data.taskProgress;
+                    }
+
+                    // Load stats
+                    if (data.stats) {
+                        gameData[userTeam].stats = data.stats;
                     }
 
                     // Calculate offline earnings with safety checks
@@ -512,7 +561,9 @@
                     balance: parseFloat(userBalance.toFixed(2)), // Ensure clean number
                     income: parseFloat(passiveIncome.toFixed(2)), // Ensure clean number
                     lastOnline: Date.now(),
-                    ownedItems: ownedItems
+                    ownedItems: ownedItems,
+                    taskProgress: gameData.taskProgress,
+                    stats: gameData[userTeam].stats
                 };
 
                 // Create backup of previous save
@@ -650,6 +701,9 @@
             userTeam = '';
             gameData.dev.apps = [];
             gameData.byte.tools = [];
+            gameData.dev.stats = { appsCreated: 0, securityLevel: 1, courtCasesWon: 0, operationsCompleted: 0 };
+            gameData.byte.stats = { systemsHacked: 0, softwareCreated: 0, appsHacked: 0, operationsCompleted: 0 };
+            gameData.taskProgress = { dailyTasks: {}, limitedTasks: {}, regularTasks: {} };
 
             // Hide game interface and confirmation
             document.getElementById('gameInterface').style.display = 'none';
@@ -780,8 +834,81 @@
             `).join('');
         }
 
+        // Add task verification functions
+        function verifyTaskCompletion(taskId, taskType) {
+            const stats = gameData[userTeam].stats;
+
+            // Task verification logic
+            const verificationRules = {
+                dev: {
+                    'create_5_apps': () => stats.appsCreated >= 5,
+                    'security_level_3': () => stats.securityLevel >= 3,
+                    'win_3_courts': () => stats.courtCasesWon >= 3,
+                    'create_new_app': () => true, // Daily task, always verifiable
+                    'upgrade_security': () => true,
+                    'file_court': () => true,
+                    'own_5_apps': () => gameData.dev.apps.length >= 5,
+                    'security_level_5': () => stats.securityLevel >= 5,
+                    'win_10_courts': () => stats.courtCasesWon >= 10
+                },
+                byte: {
+                    'hack_3_systems': () => stats.systemsHacked >= 3,
+                    'develop_software': () => stats.softwareCreated >= 1,
+                    'hack_5_apps': () => stats.appsHacked >= 5,
+                    'attempt_hack': () => true, // Daily task, always verifiable
+                    'upgrade_software': () => true,
+                    'develop_exploit': () => true,
+                    'create_3_tools': () => gameData.byte.tools.length >= 3,
+                    'hack_20_apps': () => stats.appsHacked >= 20,
+                    'develop_5_exploits': () => stats.softwareCreated >= 5
+                },
+                common: {
+                    'login_daily': () => true,
+                    'complete_3_ops': () => stats.operationsCompleted >= 3,
+                    'reach_income': () => passiveIncome >= 100,
+                    'complete_50_ops': () => stats.operationsCompleted >= 50
+                }
+            };
+
+            const rule = verificationRules[userTeam]?.[taskId] || verificationRules.common[taskId];
+            return rule ? rule() : false;
+        }
+
+        function completeTask(taskId, taskType, reward) {
+            if (verifyTaskCompletion(taskId, taskType)) {
+                // Add reward
+                userBalance += reward;
+                updateStats();
+
+                // Mark task as completed
+                if (!gameData.taskProgress[taskType]) {
+                    gameData.taskProgress[taskType] = {};
+                }
+                gameData.taskProgress[taskType][taskId] = Date.now();
+
+                // Save progress
+                saveGameData();
+
+                // Show success message
+                Telegram.WebApp.showPopup({
+                    title: 'Task Completed!',
+                    message: `You earned $${reward}`,
+                    buttons: [{ type: 'ok', text: 'Great!' }]
+                });
+
+                // Update tasks display
+                updateTasks();
+            } else {
+                Telegram.WebApp.showPopup({
+                    title: 'Cannot Complete Task',
+                    message: 'You haven\'t met the requirements for this task yet.',
+                    buttons: [{ type: 'ok', text: 'OK' }]
+                });
+            }
+        }
+
+        // Update the task display function
         function updateTasks() {
-            // Get tasks based on user's team
             const limitedTasks = tasksData.limited[userTeam] || [];
             const dailyTasks = [
                 ...(tasksData.daily[userTeam] || []),
@@ -792,29 +919,37 @@
                 ...tasksData.regular.common
             ];
 
-            // Update limited tasks
-            document.getElementById('limitedTasks').innerHTML = limitedTasks.map(task => `
-                <div class="task-item">
-                    <div>${task.title} (${task.time})</div>
-                    <div class="task-reward">+$${task.reward}</div>
-                </div>
-            `).join('');
+            function createTaskElement(task, type) {
+                const taskId = task.title.toLowerCase().replace(/\s+/g, '_');
+                const isCompleted = gameData.taskProgress[type]?.[taskId];
+                const isVerified = verifyTaskCompletion(taskId, type);
 
-            // Update daily tasks
-            document.getElementById('dailyTasks').innerHTML = dailyTasks.map(task => `
-                <div class="task-item">
-                    <div>${task.title}</div>
-                    <div class="task-reward">+$${task.reward}</div>
-                </div>
-            `).join('');
+                return `
+                    <div class="task-item">
+                        <div>
+                            ${task.title}
+                            ${task.time ? `<div class="task-progress">${task.time}</div>` : ''}
+                        </div>
+                        <div class="task-reward">+$${task.reward}</div>
+                        <button 
+                            class="check-task-btn"
+                            onclick="completeTask('${taskId}', '${type}', ${task.reward})"
+                            ${isCompleted || !isVerified ? 'disabled' : ''}
+                        >
+                            ${isCompleted ? '✓' : 'Check'}
+                        </button>
+                    </div>
+                `;
+            }
 
-            // Update regular tasks
-            document.getElementById('regularTasks').innerHTML = regularTasks.map(task => `
-                <div class="task-item">
-                    <div>${task.title}</div>
-                    <div class="task-reward">+$${task.reward}</div>
-                </div>
-            `).join('');
+            document.getElementById('limitedTasks').innerHTML =
+                limitedTasks.map(task => createTaskElement(task, 'limitedTasks')).join('');
+
+            document.getElementById('dailyTasks').innerHTML =
+                dailyTasks.map(task => createTaskElement(task, 'dailyTasks')).join('');
+
+            document.getElementById('regularTasks').innerHTML =
+                regularTasks.map(task => createTaskElement(task, 'regularTasks')).join('');
         }
 
         // Add to initialization
