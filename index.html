@@ -259,6 +259,83 @@
             margin: 15px 0;
             color: var(--accent-color);
         }
+
+        .section {
+            display: none;
+            margin-top: 70px;
+            padding: 15px;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .leaderboard-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .leaderboard {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .leaderboard.dev-board {
+            border: 1px solid var(--accent-color);
+        }
+
+        .leaderboard.byte-board {
+            border: 1px solid var(--accent-color-byte);
+        }
+
+        .leaderboard-title {
+            text-align: center;
+            margin-bottom: 15px;
+            color: var(--accent-color);
+        }
+
+        .byte-board .leaderboard-title {
+            color: var(--accent-color-byte);
+        }
+
+        .leader-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #333;
+        }
+
+        .leader-rank {
+            color: #666;
+            margin-right: 10px;
+        }
+
+        .task-category {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--accent-color);
+        }
+
+        .task-category h2 {
+            margin-top: 0;
+            color: var(--accent-color);
+        }
+
+        .task-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #333;
+        }
+
+        .task-reward {
+            color: var(--accent-color);
+        }
     </style>
 </head>
 
@@ -286,8 +363,38 @@
             <div class="income-display">Income: <span id="income">0</span>$/hr</div>
         </div>
 
-        <div class="category-grid" id="categoryGrid">
-            <!-- Categories will be dynamically populated based on team -->
+        <div id="mainSection" class="section active">
+            <div class="category-grid" id="categoryGrid">
+                <!-- Categories will be dynamically populated based on team -->
+            </div>
+        </div>
+
+        <div id="leadersSection" class="section">
+            <div class="leaderboard-container">
+                <div class="leaderboard dev-board">
+                    <h2 class="leaderboard-title">🏆 Top Developers</h2>
+                    <div id="devLeaderboard"></div>
+                </div>
+                <div class="leaderboard byte-board">
+                    <h2 class="leaderboard-title">🏆 Top Hackers</h2>
+                    <div id="byteLeaderboard"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tasksSection" class="section">
+            <div class="task-category">
+                <h2>🌟 Limited Tasks</h2>
+                <div id="limitedTasks"></div>
+            </div>
+            <div class="task-category">
+                <h2>📅 Daily Tasks</h2>
+                <div id="dailyTasks"></div>
+            </div>
+            <div class="task-category">
+                <h2>📋 Regular Tasks</h2>
+                <div id="regularTasks"></div>
+            </div>
         </div>
 
         <div class="navigation">
@@ -497,8 +604,23 @@
         }
 
         function showSection(section) {
-            // Implementation for navigation between sections
-            console.log('Showing section:', section);
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+
+            // Show selected section
+            switch (section) {
+                case 'main':
+                    document.getElementById('mainSection').classList.add('active');
+                    break;
+                case 'leaders':
+                    document.getElementById('leadersSection').classList.add('active');
+                    updateLeaderboards();
+                    break;
+                case 'tasks':
+                    document.getElementById('tasksSection').classList.add('active');
+                    updateTasks();
+                    break;
+            }
         }
 
         // Auto-save every minute in addition to other save points
@@ -566,6 +688,96 @@
                 }
             });
         }
+
+        // Test data for leaderboards
+        const leaderboardData = {
+            devs: [
+                { name: 'MasterDev', points: 15000, income: 500 },
+                { name: 'AppWizard', points: 12000, income: 400 },
+                { name: 'CodeNinja', points: 9000, income: 300 },
+                { name: 'BugFixer', points: 7500, income: 250 },
+                { name: 'WebMaster', points: 6000, income: 200 }
+            ],
+            bytes: [
+                { name: 'CyberKing', points: 14000, income: 450 },
+                { name: 'HackMaster', points: 11000, income: 350 },
+                { name: 'DataThief', points: 8500, income: 280 },
+                { name: 'SystemBreaker', points: 7000, income: 230 },
+                { name: 'CodeBreaker', points: 5500, income: 180 }
+            ]
+        };
+
+        // Test data for tasks
+        const tasksData = {
+            limited: [
+                { title: 'Create 5 apps', reward: 1000, time: '2 days left' },
+                { title: 'Hack 3 high-security systems', reward: 800, time: '1 day left' }
+            ],
+            daily: [
+                { title: 'Login to the game', reward: 100 },
+                { title: 'Upgrade one item', reward: 200 },
+                { title: 'Complete 3 operations', reward: 300 }
+            ],
+            regular: [
+                { title: 'Reach 100$/hr income', reward: 500 },
+                { title: 'Own 10 items', reward: 1000 },
+                { title: 'Complete 50 operations', reward: 2000 }
+            ]
+        };
+
+        function updateLeaderboards() {
+            const devBoard = document.getElementById('devLeaderboard');
+            const byteBoard = document.getElementById('byteLeaderboard');
+
+            devBoard.innerHTML = leaderboardData.devs.map((leader, index) => `
+                <div class="leader-item">
+                    <div>
+                        <span class="leader-rank">#${index + 1}</span>
+                        ${leader.name}
+                    </div>
+                    <div>${leader.points}pts (${leader.income}$/hr)</div>
+                </div>
+            `).join('');
+
+            byteBoard.innerHTML = leaderboardData.bytes.map((leader, index) => `
+                <div class="leader-item">
+                    <div>
+                        <span class="leader-rank">#${index + 1}</span>
+                        ${leader.name}
+                    </div>
+                    <div>${leader.points}pts (${leader.income}$/hr)</div>
+                </div>
+            `).join('');
+        }
+
+        function updateTasks() {
+            document.getElementById('limitedTasks').innerHTML = tasksData.limited.map(task => `
+                <div class="task-item">
+                    <div>${task.title} (${task.time})</div>
+                    <div class="task-reward">+$${task.reward}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('dailyTasks').innerHTML = tasksData.daily.map(task => `
+                <div class="task-item">
+                    <div>${task.title}</div>
+                    <div class="task-reward">+$${task.reward}</div>
+                </div>
+            `).join('');
+
+            document.getElementById('regularTasks').innerHTML = tasksData.regular.map(task => `
+                <div class="task-item">
+                    <div>${task.title}</div>
+                    <div class="task-reward">+$${task.reward}</div>
+                </div>
+            `).join('');
+        }
+
+        // Add to initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            updateLeaderboards();
+            updateTasks();
+        });
     </script>
 </body>
 
