@@ -1080,6 +1080,7 @@
         // Update the hackable targets with more test users and apps
         function getHackableTargets() {
             const targets = [
+                { name: 'Test App', owner: '@testuser', security: 0.01, balance: 100, income: 10 },
                 { name: 'Shopping App', owner: '@developer123', security: 2, balance: 5000, income: 50 },
                 { name: 'Social Network', owner: '@techguru', security: 3, balance: 8000, income: 80 },
                 { name: 'Game Platform', owner: '@gamer444', security: 1, balance: 3000, income: 30 },
@@ -1103,7 +1104,11 @@
 
             targetsList.innerHTML = hackableTargets.map(target => {
                 const baseHackCost = 100;
-                const hackCost = baseHackCost * (target.security * 1.5);
+                let hackCost = baseHackCost * (target.security * 1.5);
+                // Ensure minimum hack cost is $1
+                if (target.security <= 0.01) {
+                    hackCost = 1;
+                }
                 return `
                     <div class="hack-target">
                         <div class="hack-target-info">
@@ -1129,7 +1134,11 @@
         function attemptHack(target, hackCost) {
             // Calculate hack cost based on target's security level
             const baseHackCost = 100;
-            const actualHackCost = baseHackCost * (target.security * 1.5);
+            let actualHackCost = baseHackCost * (target.security * 1.5);
+            // Ensure minimum hack cost is $1
+            if (target.security <= 0.01) {
+                actualHackCost = 1;
+            }
 
             if (userBalance < actualHackCost) {
                 Telegram.WebApp.showPopup({
