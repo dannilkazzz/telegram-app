@@ -384,11 +384,27 @@
             max-width: 90%;
             width: 400px;
             border: 2px solid var(--accent-color-byte);
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+        }
+
+        .hack-list-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            z-index: 999;
         }
 
         .hack-target {
             display: grid;
-            grid-template-columns: 1fr auto auto;
+            grid-template-columns: 1fr auto;
             align-items: center;
             padding: 12px;
             border-bottom: 1px solid #333;
@@ -399,9 +415,15 @@
             text-align: left;
         }
 
+        .hack-target-name {
+            font-weight: bold;
+            color: var(--accent-color-byte);
+        }
+
         .hack-target-stats {
             font-size: 0.8em;
             color: #666;
+            margin-top: 4px;
         }
 
         .hack-button {
@@ -419,10 +441,21 @@
             color: var(--background-dark);
         }
 
-        .hack-cost {
+        .hack-list-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .hack-list-title {
+            margin-top: 0;
+            margin-bottom: 20px;
             color: var(--accent-color-byte);
-            font-size: 0.9em;
-            margin-top: 4px;
         }
     </style>
 </head>
@@ -512,6 +545,15 @@
                 <button onclick="hideChangeTeamConfirmation()">Cancel</button>
                 <button class="confirm-btn" onclick="resetAndChangeTeam()">Reset & Change Team</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Add this before the closing body tag -->
+    <div class="hack-list-overlay" id="hackListOverlay">
+        <div class="hack-list-popup">
+            <button class="hack-list-close" onclick="closeHackList()">×</button>
+            <h2 class="hack-list-title">🔓 Available Targets</h2>
+            <div id="hackTargetsList"></div>
         </div>
     </div>
 
@@ -1056,34 +1098,32 @@
         function showHackList() {
             console.log('Showing hack list popup...'); // Debug log
             const hackableTargets = getHackableTargets();
-            const buttons = hackableTargets.map(target => {
+            const targetsList = document.getElementById('hackTargetsList');
+            const overlay = document.getElementById('hackListOverlay');
+
+            targetsList.innerHTML = hackableTargets.map(target => {
                 const baseHackCost = 100;
                 const hackCost = baseHackCost * (target.security * 1.5);
-                return {
-                    type: 'default',
-                    text: `${target.name} (👤${target.owner}) - 🔒${target.security} - $${formatBalance(hackCost)}`,
-                    id: `hack_${target.name.toLowerCase().replace(/\s+/g, '_')}`
-                };
-            });
+                return `
+                    <div class="hack-target">
+                        <div class="hack-target-info">
+                            <div class="hack-target-name">${target.name}</div>
+                            <div class="hack-target-stats">
+                                👤 ${target.owner} | 🔒 Security: ${target.security} | 💰 Cost: $${formatBalance(hackCost)}
+                            </div>
+                        </div>
+                        <button class="hack-button" onclick="attemptHack(${JSON.stringify(target)}, ${hackCost})">
+                            Hack
+                        </button>
+                    </div>
+                `;
+            }).join('');
 
-            Telegram.WebApp.showPopup({
-                title: '🔓 Available Targets',
-                message: 'Choose an app to hack:\n\n💰 Higher security = Higher cost\n⚡ More tools = Better success rate\n💼 Higher security = More reward',
-                buttons: [...buttons, { type: 'cancel', text: 'Cancel' }]
-            }, (buttonId) => {
-                if (buttonId && buttonId.startsWith('hack_')) {
-                    const targetName = buttonId.replace('hack_', '').replace(/_/g, ' ');
-                    const target = hackableTargets.find(t =>
-                        t.name.toLowerCase() === targetName.toLowerCase()
-                    );
+            overlay.style.display = 'block';
+        }
 
-                    if (target) {
-                        const baseHackCost = 100;
-                        const hackCost = baseHackCost * (target.security * 1.5);
-                        attemptHack(target, hackCost);
-                    }
-                }
-            });
+        function closeHackList() {
+            document.getElementById('hackListOverlay').style.display = 'none';
         }
 
         function attemptHack(target, hackCost) {
