@@ -1191,6 +1191,1195 @@
                 showHackList();
             }
         }
+
+    <style>
+        :root {
+            --background-dark: #1a1a1a;
+            --background-darker: #121212;
+            --accent-color: #00ff9d;
+            --accent-color-byte: #ff4757;
+            --text-color: #ffffff;
+            --card-bg: #2a2a2a;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-dark);
+            color: var(--text-color);
+            min-height: 100vh;
+        }
+
+        /* Team Selection Screen */
+        #teamSelection {
+            height: 100vh;
+            display: flex;
+        }
+
+        .team-half {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .team-half:hover {
+            flex: 1.2;
+        }
+
+        #devTeam {
+            background: linear-gradient(45deg, var(--background-darker), #1a4a3c);
+            border-right: 1px solid var(--accent-color);
+        }
+
+        #byteTeam {
+            background: linear-gradient(45deg, var(--background-darker), #4a1a1a);
+            border-left: 1px solid var(--accent-color-byte);
+        }
+
+        /* Game Interface */
+        #gameInterface {
+            display: none;
+            padding: 20px;
+        }
+
+        .stats-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: var(--background-darker);
+            padding: 15px;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            border-bottom: 1px solid var(--accent-color);
+            gap: 10px;
+        }
+
+        .balance-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .buy-money-btn {
+            background: var(--accent-color);
+            color: var(--background-dark);
+            border: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            cursor: pointer;
+            padding: 0;
+            transition: transform 0.2s;
+        }
+
+        .buy-money-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .income-display {
+            justify-self: end;
+        }
+
+        .category-grid {
+            margin-top: 70px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding: 15px;
+        }
+
+        .category-card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .dev-card {
+            border: 1px solid var(--accent-color);
+        }
+
+        .byte-card {
+            border: 1px solid var(--accent-color-byte);
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--background-darker);
+            padding: 15px;
+            display: flex;
+            justify-content: space-around;
+            border-top: 1px solid var(--accent-color);
+        }
+
+        button {
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--accent-color);
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: var(--accent-color);
+            color: var(--background-dark);
+        }
+
+        .byte-button {
+            border-color: var(--accent-color-byte);
+        }
+
+        .byte-button:hover {
+            background: var(--accent-color-byte);
+        }
+
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .popup {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 80%;
+            text-align: center;
+            border: 1px solid var(--accent-color);
+        }
+
+        .popup.byte-popup {
+            border-color: var(--accent-color-byte);
+        }
+
+        .welcome-amount {
+            font-size: 1.5em;
+            margin: 15px 0;
+            color: var(--accent-color);
+        }
+
+        .byte-popup .welcome-amount {
+            color: var(--accent-color-byte);
+        }
+
+        .change-team-btn {
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--accent-color);
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        .change-team-btn:hover {
+            background: var(--accent-color);
+            color: var(--background-dark);
+        }
+
+        .confirmation-popup {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 80%;
+            text-align: center;
+            border: 2px solid var(--accent-color);
+        }
+
+        .confirmation-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .confirm-btn {
+            background: #ff4757;
+            border-color: #ff4757;
+        }
+
+        .confirm-btn:hover {
+            background: #ff6b81;
+        }
+
+        /* Add styles for purchase popup */
+        .purchase-popup {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 80%;
+            text-align: center;
+            border: 2px solid var(--accent-color);
+        }
+
+        .purchase-amount {
+            font-size: 1.5em;
+            margin: 15px 0;
+            color: var(--accent-color);
+        }
+
+        .section {
+            display: none;
+            margin-top: 70px;
+            padding: 15px;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .leaderboard-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .leaderboard {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .leaderboard.dev-board {
+            border: 1px solid var(--accent-color);
+        }
+
+        .leaderboard.byte-board {
+            border: 1px solid var(--accent-color-byte);
+        }
+
+        .leaderboard-title {
+            text-align: center;
+            margin-bottom: 15px;
+            color: var(--accent-color);
+        }
+
+        .byte-board .leaderboard-title {
+            color: var(--accent-color-byte);
+        }
+
+        .leader-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            border-bottom: 1px solid #333;
+        }
+
+        .leader-rank {
+            color: #666;
+            margin-right: 10px;
+        }
+
+        .task-category {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--accent-color);
+        }
+
+        .task-category h2 {
+            margin-top: 0;
+            color: var(--accent-color);
+        }
+
+        .task-item {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #333;
+            gap: 15px;
+        }
+
+        .check-task-btn {
+            background: var(--card-bg);
+            color: var(--text-color);
+            border: 1px solid var(--accent-color);
+            padding: 8px 16px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            cursor: pointer;
+            min-width: 70px;
+            transition: all 0.2s ease;
+        }
+
+        .check-task-btn:hover:not(:disabled) {
+            background: var(--accent-color);
+            color: var(--background-dark);
+        }
+
+        .check-task-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            border-color: #444;
+        }
+
+        .check-task-btn[disabled="true"] {
+            background: var(--accent-color);
+            color: var(--background-dark);
+            opacity: 0.7;
+        }
+
+        .task-progress {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .task-reward {
+            color: var(--accent-color);
+            font-weight: 500;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        /* Add styles for hack list popup */
+        .hack-list-popup {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 90%;
+            width: 400px;
+            border: 2px solid var(--accent-color-byte);
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+        }
+
+        .hack-list-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            z-index: 999;
+        }
+
+        .hack-target {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #333;
+            gap: 15px;
+        }
+
+        .hack-target-info {
+            text-align: left;
+        }
+
+        .hack-target-name {
+            font-weight: bold;
+            color: var(--accent-color-byte);
+        }
+
+        .hack-target-stats {
+            font-size: 0.8em;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .hack-button {
+            background: var(--card-bg);
+            color: var(--accent-color-byte);
+            border: 1px solid var(--accent-color-byte);
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .hack-button:hover {
+            background: var(--accent-color-byte);
+            color: var(--background-dark);
+        }
+
+        .hack-list-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: var(--text-color);
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .hack-list-title {
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: var(--accent-color-byte);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Team Selection Screen -->
+    <div id="teamSelection">
+        <div id="devTeam" class="team-half" onclick="selectTeam('dev')">
+            <h2>DEV</h2>
+            <p>Create Apps & Mine Money</p>
+        </div>
+        <div id="byteTeam" class="team-half" onclick="selectTeam('byte')">
+            <h2>BYTE</h2>
+            <p>Hack & Exploit</p>
+        </div>
+    </div>
+
+    <!-- Game Interface -->
+    <div id="gameInterface">
+        <div class="stats-bar">
+            <div class="balance-container">
+                Balance: <span id="balance">0</span>$
+                <button class="buy-money-btn" onclick="purchaseMoney()">+</button>
+            </div>
+            <button class="change-team-btn" onclick="showChangeTeamConfirmation()">Change Team</button>
+            <div class="income-display">Income: <span id="income">0</span>$/hr</div>
+        </div>
+
+        <div id="mainSection" class="section active">
+            <div class="category-grid" id="categoryGrid">
+                <!-- Categories will be dynamically populated based on team -->
+            </div>
+        </div>
+
+        <div id="leadersSection" class="section">
+            <div class="leaderboard-container">
+                <div class="leaderboard dev-board">
+                    <h2 class="leaderboard-title">🏆 Top Developers</h2>
+                    <div id="devLeaderboard"></div>
+                </div>
+                <div class="leaderboard byte-board">
+                    <h2 class="leaderboard-title">🏆 Top Hackers</h2>
+                    <div id="byteLeaderboard"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="tasksSection" class="section">
+            <div class="task-category">
+                <h2>🌟 Limited Tasks</h2>
+                <div id="limitedTasks"></div>
+            </div>
+            <div class="task-category">
+                <h2>📅 Daily Tasks</h2>
+                <div id="dailyTasks"></div>
+            </div>
+            <div class="task-category">
+                <h2>📋 Regular Tasks</h2>
+                <div id="regularTasks"></div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button onclick="showSection('main')">Main</button>
+            <button onclick="showSection('tasks')">Tasks</button>
+            <button onclick="showSection('leaders')">Leaders</button>
+        </div>
+    </div>
+
+    <!-- Welcome Back Popup -->
+    <div class="popup-overlay" id="welcomePopup">
+        <div class="popup" id="welcomePopupContent">
+            <h2>Welcome Back!</h2>
+            <p>While you were away:</p>
+            <div class="welcome-amount" id="welcomeAmount">+$0.00</div>
+            <button onclick="closeWelcomePopup()">Claim Rewards</button>
+        </div>
+    </div>
+
+    <!-- Add new confirmation popup after the welcome popup -->
+    <div class="popup-overlay" id="changeTeamPopup">
+        <div class="popup confirmation-popup">
+            <h2>⚠️ Warning ⚠️</h2>
+            <p>Changing team will reset all your progress!</p>
+            <p>Your current progress will be lost.</p>
+            <div class="confirmation-buttons">
+                <button onclick="hideChangeTeamConfirmation()">Cancel</button>
+                <button class="confirm-btn" onclick="resetAndChangeTeam()">Reset & Change Team</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add this before the closing body tag -->
+    <div class="hack-list-overlay" id="hackListOverlay">
+        <div class="hack-list-popup">
+            <button class="hack-list-close" onclick="closeHackList()">×</button>
+            <h2 class="hack-list-title">🔓 Available Targets</h2>
+            <div id="hackTargetsList"></div>
+        </div>
+    </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        let userTeam = '';
+        let userBalance = 0;
+        let passiveIncome = 0;
+        let lastOnlineTime = Date.now();
+
+        // Initialize game data
+        const gameData = {
+            dev: {
+                categories: [
+                    { name: 'Apps', icon: '💻' },
+                    { name: 'Security', icon: '🔒' },
+                    { name: 'Court', icon: '⚖️' }
+                ],
+                firstApp: { name: 'Basic App', income: 1 },
+                apps: [], // Track owned apps
+                stats: {
+                    appsCreated: 0,
+                    securityLevel: 1,
+                    courtCasesWon: 0,
+                    operationsCompleted: 0
+                }
+            },
+            byte: {
+                categories: [
+                    { name: 'Hack', icon: '🔓' },
+                    { name: 'Software', icon: '🛠️' }
+                ],
+                firstTool: { name: 'Basic Hack Tool', income: 1 },
+                tools: [], // Track owned tools
+                stats: {
+                    systemsHacked: 0,
+                    softwareCreated: 0,
+                    appsHacked: 0,
+                    operationsCompleted: 0
+                }
+            },
+            taskProgress: {
+                dailyTasks: {},
+                limitedTasks: {},
+                regularTasks: {}
+            }
+        };
+
+        // Load saved game data with enhanced error handling
+        function loadGameData() {
+            try {
+                const savedData = localStorage.getItem('devByteGameData');
+                if (savedData) {
+                    const data = JSON.parse(savedData);
+
+                    // Ensure all required properties exist
+                    userTeam = data.team || '';
+                    userBalance = parseFloat(data.balance) || 0;
+                    passiveIncome = parseFloat(data.income) || 0;
+                    lastOnlineTime = parseInt(data.lastOnline) || Date.now();
+
+                    // Load owned items
+                    if (data.ownedItems) {
+                        if (data.team === 'dev') {
+                            gameData.dev.apps = data.ownedItems;
+                        } else {
+                            gameData.byte.tools = data.ownedItems;
+                        }
+                    }
+
+                    // Load task progress
+                    if (data.taskProgress) {
+                        gameData.taskProgress = data.taskProgress;
+                    }
+
+                    // Load stats
+                    if (data.stats) {
+                        gameData[userTeam].stats = data.stats;
+                    }
+
+                    // Calculate offline earnings with safety checks
+                    const timeOffline = Math.max(0, (Date.now() - lastOnlineTime) / 1000);
+                    const offlineEarnings = (passiveIncome / 3600) * timeOffline;
+
+                    if (offlineEarnings > 0) {
+                        userBalance += offlineEarnings; // Add offline earnings to balance
+                        showWelcomeBack(offlineEarnings);
+                    }
+
+                    // If user already selected a team, show game interface
+                    if (userTeam) {
+                        document.getElementById('teamSelection').style.display = 'none';
+                        document.getElementById('gameInterface').style.display = 'block';
+                        initializeTeam(userTeam, false);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading game data:', error);
+                // Create backup of corrupted data
+                const corruptedData = localStorage.getItem('devByteGameData');
+                if (corruptedData) {
+                    localStorage.setItem('devByteGameData_backup', corruptedData);
+                }
+            }
+        }
+
+        // Enhanced save game data
+        function saveGameData() {
+            try {
+                const ownedItems = userTeam === 'dev' ? gameData.dev.apps : gameData.byte.tools;
+                const gameDataToSave = {
+                    team: userTeam,
+                    balance: parseFloat(userBalance.toFixed(2)), // Ensure clean number
+                    income: parseFloat(passiveIncome.toFixed(2)), // Ensure clean number
+                    lastOnline: Date.now(),
+                    ownedItems: ownedItems,
+                    taskProgress: gameData.taskProgress,
+                    stats: gameData[userTeam].stats
+                };
+
+                // Create backup of previous save
+                const previousSave = localStorage.getItem('devByteGameData');
+                if (previousSave) {
+                    localStorage.setItem('devByteGameData_previous', previousSave);
+                }
+
+                // Save new data
+                localStorage.setItem('devByteGameData', JSON.stringify(gameDataToSave));
+            } catch (error) {
+                console.error('Error saving game data:', error);
+            }
+        }
+
+        function showWelcomeBack(earnings) {
+            const popup = document.getElementById('welcomePopup');
+            const popupContent = document.getElementById('welcomePopupContent');
+            const amountElement = document.getElementById('welcomeAmount');
+
+            // Set popup style based on team
+            popupContent.className = `popup ${userTeam}-popup`;
+            amountElement.textContent = `+$${earnings.toFixed(2)}`;
+
+            // Show what generated the money
+            const sourceText = userTeam === 'dev' ? 'Your apps have generated:' : 'Your hacking tools have generated:';
+            document.querySelector('#welcomePopupContent p').textContent = sourceText;
+
+            popup.style.display = 'flex';
+        }
+
+        function closeWelcomePopup() {
+            document.getElementById('welcomePopup').style.display = 'none';
+        }
+
+        function selectTeam(team) {
+            // Check if user already has saved data
+            const savedData = localStorage.getItem('devByteGameData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                if (data.team) {
+                    // User already has a team, load their data instead
+                    loadGameData();
+                    return;
+                }
+            }
+
+            userTeam = team;
+            document.getElementById('teamSelection').style.display = 'none';
+            document.getElementById('gameInterface').style.display = 'block';
+            initializeTeam(team, true);
+        }
+
+        function initializeTeam(team, isNewGame) {
+            const grid = document.getElementById('categoryGrid');
+            const categories = gameData[team].categories;
+
+            // Use direct onclick in the HTML
+            grid.innerHTML = categories.map(cat => `
+                <div class="category-card ${team}-card" onclick="categoryClicked('${cat.name}')">
+                    <h3>${cat.icon} ${cat.name}</h3>
+                </div>
+            `).join('');
+
+            // Only initialize if it's a completely new game
+            if (isNewGame && !localStorage.getItem('devByteGameData')) {
+                userBalance = 0;
+                passiveIncome = team === 'dev' ? gameData.dev.firstApp.income : gameData.byte.firstTool.income;
+
+                // Add first free item
+                const firstItem = team === 'dev' ?
+                    { ...gameData.dev.firstApp } :
+                    { ...gameData.byte.firstTool };
+
+                if (team === 'dev') {
+                    gameData.dev.apps.push(firstItem);
+                } else {
+                    gameData.byte.tools.push(firstItem);
+                }
+            }
+
+            updateStats();
+            saveGameData();
+        }
+
+        function updateStats() {
+            document.getElementById('balance').textContent = formatBalance(userBalance);
+            document.getElementById('income').textContent = formatBalance(passiveIncome);
+            saveGameData();
+        }
+
+        function showSection(section) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+
+            // Show selected section
+            switch (section) {
+                case 'main':
+                    document.getElementById('mainSection').classList.add('active');
+                    break;
+                case 'leaders':
+                    document.getElementById('leadersSection').classList.add('active');
+                    updateLeaderboards();
+                    break;
+                case 'tasks':
+                    document.getElementById('tasksSection').classList.add('active');
+                    updateTasks();
+                    break;
+            }
+        }
+
+        // Auto-save every minute in addition to other save points
+        setInterval(saveGameData, 60000);
+
+        // Initialize Telegram Web App and load saved data
+        Telegram.WebApp.ready();
+        loadGameData();
+
+        function showChangeTeamConfirmation() {
+            document.getElementById('changeTeamPopup').style.display = 'flex';
+        }
+
+        function hideChangeTeamConfirmation() {
+            document.getElementById('changeTeamPopup').style.display = 'none';
+        }
+
+        function resetAndChangeTeam() {
+            // Clear all game data
+            localStorage.removeItem('devByteGameData');
+            localStorage.removeItem('devByteGameData_previous');
+            localStorage.removeItem('devByteGameData_backup');
+
+            // Reset variables
+            userBalance = 0;
+            passiveIncome = 0;
+            userTeam = '';
+            gameData.dev.apps = [];
+            gameData.byte.tools = [];
+            gameData.dev.stats = { appsCreated: 0, securityLevel: 1, courtCasesWon: 0, operationsCompleted: 0 };
+            gameData.byte.stats = { systemsHacked: 0, softwareCreated: 0, appsHacked: 0, operationsCompleted: 0 };
+            gameData.taskProgress = { dailyTasks: {}, limitedTasks: {}, regularTasks: {} };
+
+            // Hide game interface and confirmation
+            document.getElementById('gameInterface').style.display = 'none';
+            document.getElementById('changeTeamPopup').style.display = 'none';
+
+            // Show team selection
+            document.getElementById('teamSelection').style.display = 'flex';
+        }
+
+        function purchaseMoney() {
+            Telegram.WebApp.showPopup({
+                title: 'Buy Game Money',
+                message: 'Do you want to buy 10,000$ for 160 Stars?',
+                buttons: [
+                    { type: 'ok', text: 'Confirm and Pay ⭐ 160 Stars' },
+                    { type: 'cancel', text: 'Cancel' }
+                ]
+            }, (buttonId) => {
+                if (buttonId === 'ok') {
+                    // Request write access to modify user's Stars balance
+                    Telegram.WebApp.requestWriteAccess((result) => {
+                        if (result) {
+                            // Add money to game balance
+                            userBalance += 10000;
+                            updateStats();
+                            saveGameData();
+
+                            // Show success message
+                            Telegram.WebApp.showPopup({
+                                title: 'Success!',
+                                message: '10,000$ has been added to your balance',
+                                buttons: [{ type: 'ok', text: 'Great!' }]
+                            });
+                        }
+                    });
+                }
+            });
+        }
+
+        // Test data for leaderboards
+        const leaderboardData = {
+            devs: [
+                { name: 'MasterDev', points: 15000, income: 500 },
+                { name: 'AppWizard', points: 12000, income: 400 },
+                { name: 'CodeNinja', points: 9000, income: 300 },
+                { name: 'BugFixer', points: 7500, income: 250 },
+                { name: 'WebMaster', points: 6000, income: 200 }
+            ],
+            bytes: [
+                { name: 'CyberKing', points: 14000, income: 450 },
+                { name: 'HackMaster', points: 11000, income: 350 },
+                { name: 'DataThief', points: 8500, income: 280 },
+                { name: 'SystemBreaker', points: 7000, income: 230 },
+                { name: 'CodeBreaker', points: 5500, income: 180 }
+            ]
+        };
+
+        // Update the tasks data structure to separate by team
+        const tasksData = {
+            limited: {
+                dev: [
+                    { title: 'Create 5 apps', reward: 1000, time: '2 days left' },
+                    { title: 'Upgrade security level to 3', reward: 800, time: '1 day left' },
+                    { title: 'Win 3 court cases', reward: 1200, time: '3 days left' }
+                ],
+                byte: [
+                    { title: 'Hack 3 high-security systems', reward: 1000, time: '2 days left' },
+                    { title: 'Develop advanced hacking software', reward: 800, time: '1 day left' },
+                    { title: 'Successfully hack 5 apps', reward: 1200, time: '3 days left' }
+                ]
+            },
+            daily: {
+                dev: [
+                    { title: 'Create a new app', reward: 200 },
+                    { title: 'Upgrade security system', reward: 300 },
+                    { title: 'File a court case', reward: 250 }
+                ],
+                byte: [
+                    { title: 'Attempt to hack an app', reward: 200 },
+                    { title: 'Upgrade hacking software', reward: 300 },
+                    { title: 'Develop new exploit', reward: 250 }
+                ],
+                common: [
+                    { title: 'Login to the game', reward: 100 },
+                    { title: 'Complete 3 operations', reward: 300 }
+                ]
+            },
+            regular: {
+                dev: [
+                    { title: 'Own 5 apps', reward: 1000 },
+                    { title: 'Reach security level 5', reward: 2000 },
+                    { title: 'Win 10 court cases', reward: 3000 }
+                ],
+                byte: [
+                    { title: 'Create 3 hacking tools', reward: 1000 },
+                    { title: 'Successfully hack 20 apps', reward: 2000 },
+                    { title: 'Develop 5 advanced exploits', reward: 3000 }
+                ],
+                common: [
+                    { title: 'Reach 100$/hr income', reward: 500 },
+                    { title: 'Complete 50 operations', reward: 2000 }
+                ]
+            }
+        };
+
+        function updateLeaderboards() {
+            const devBoard = document.getElementById('devLeaderboard');
+            const byteBoard = document.getElementById('byteLeaderboard');
+
+            devBoard.innerHTML = leaderboardData.devs.map((leader, index) => `
+                <div class="leader-item">
+                    <div>
+                        <span class="leader-rank">#${index + 1}</span>
+                        ${leader.name}
+                    </div>
+                    <div>${leader.points}pts (${leader.income}$/hr)</div>
+                </div>
+            `).join('');
+
+            byteBoard.innerHTML = leaderboardData.bytes.map((leader, index) => `
+                <div class="leader-item">
+                    <div>
+                        <span class="leader-rank">#${index + 1}</span>
+                        ${leader.name}
+                    </div>
+                    <div>${leader.points}pts (${leader.income}$/hr)</div>
+                </div>
+            `).join('');
+        }
+
+        // Add task verification functions
+        function verifyTaskCompletion(taskId, taskType) {
+            const stats = gameData[userTeam].stats;
+
+            // Task verification logic
+            const verificationRules = {
+                dev: {
+                    'create_5_apps': () => stats.appsCreated >= 5,
+                    'security_level_3': () => stats.securityLevel >= 3,
+                    'win_3_courts': () => stats.courtCasesWon >= 3,
+                    'create_new_app': () => true, // Daily task, always verifiable
+                    'upgrade_security': () => true,
+                    'file_court': () => true,
+                    'own_5_apps': () => gameData.dev.apps.length >= 5,
+                    'security_level_5': () => stats.securityLevel >= 5,
+                    'win_10_courts': () => stats.courtCasesWon >= 10
+                },
+                byte: {
+                    'hack_3_systems': () => stats.systemsHacked >= 3,
+                    'develop_software': () => stats.softwareCreated >= 1,
+                    'hack_5_apps': () => stats.appsHacked >= 5,
+                    'attempt_hack': () => true, // Daily task, always verifiable
+                    'upgrade_software': () => true,
+                    'develop_exploit': () => true,
+                    'create_3_tools': () => gameData.byte.tools.length >= 3,
+                    'hack_20_apps': () => stats.appsHacked >= 20,
+                    'develop_5_exploits': () => stats.softwareCreated >= 5
+                },
+                common: {
+                    'login_daily': () => true,
+                    'complete_3_ops': () => stats.operationsCompleted >= 3,
+                    'reach_income': () => passiveIncome >= 100,
+                    'complete_50_ops': () => stats.operationsCompleted >= 50
+                }
+            };
+
+            const rule = verificationRules[userTeam]?.[taskId] || verificationRules.common[taskId];
+            return rule ? rule() : false;
+        }
+
+        function completeTask(taskId, taskType, reward) {
+            if (verifyTaskCompletion(taskId, taskType)) {
+                // Add reward
+                userBalance += reward;
+                updateStats();
+
+                // Mark task as completed
+                if (!gameData.taskProgress[taskType]) {
+                    gameData.taskProgress[taskType] = {};
+                }
+                gameData.taskProgress[taskType][taskId] = Date.now();
+
+                // Save progress
+                saveGameData();
+
+                // Show success message
+                Telegram.WebApp.showPopup({
+                    title: 'Task Completed!',
+                    message: `You earned $${reward}`,
+                    buttons: [{ type: 'ok', text: 'Great!' }]
+                });
+
+                // Update tasks display
+                updateTasks();
+            } else {
+                Telegram.WebApp.showPopup({
+                    title: 'Cannot Complete Task',
+                    message: 'You haven\'t met the requirements for this task yet.',
+                    buttons: [{ type: 'ok', text: 'OK' }]
+                });
+            }
+        }
+
+        // Update the task display function
+        function updateTasks() {
+            const limitedTasks = tasksData.limited[userTeam] || [];
+            const dailyTasks = [
+                ...(tasksData.daily[userTeam] || []),
+                ...tasksData.daily.common
+            ];
+            const regularTasks = [
+                ...(tasksData.regular[userTeam] || []),
+                ...tasksData.regular.common
+            ];
+
+            function createTaskElement(task, type) {
+                const taskId = task.title.toLowerCase().replace(/\s+/g, '_');
+                const isCompleted = gameData.taskProgress[type]?.[taskId];
+                const isVerified = verifyTaskCompletion(taskId, type);
+
+                return `
+                    <div class="task-item">
+                        <div>
+                            ${task.title}
+                            ${task.time ? `<div class="task-progress">${task.time}</div>` : ''}
+                        </div>
+                        <div class="task-reward">+$${task.reward}</div>
+                        <button 
+                            class="check-task-btn"
+                            onclick="completeTask('${taskId}', '${type}', ${task.reward})"
+                            ${isCompleted || !isVerified ? 'disabled' : ''}
+                        >
+                            ${isCompleted ? '✓' : 'Check'}
+                        </button>
+                    </div>
+                `;
+            }
+
+            document.getElementById('limitedTasks').innerHTML =
+                limitedTasks.map(task => createTaskElement(task, 'limitedTasks')).join('');
+
+            document.getElementById('dailyTasks').innerHTML =
+                dailyTasks.map(task => createTaskElement(task, 'dailyTasks')).join('');
+
+            document.getElementById('regularTasks').innerHTML =
+                regularTasks.map(task => createTaskElement(task, 'regularTasks')).join('');
+        }
+
+        // Add to initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            updateLeaderboards();
+            updateTasks();
+        });
+
+        // Format balance to use K and M for large numbers
+        function formatBalance(balance) {
+            if (balance >= 1000000) {
+                return (balance / 1000000).toFixed(1) + 'M';
+            } else if (balance >= 1000) {
+                return (balance / 1000).toFixed(1) + 'K';
+            }
+            return balance.toFixed(2);
+        }
+
+        // Update the hackable targets with more test users and apps
+        function getHackableTargets() {
+            const targets = [
+                { name: 'Test App', owner: '@testuser', security: 0.01, balance: 100, income: 10 },
+                { name: 'Shopping App', owner: '@developer123', security: 2, balance: 5000, income: 50 },
+                { name: 'Social Network', owner: '@techguru', security: 3, balance: 8000, income: 80 },
+                { name: 'Game Platform', owner: '@gamer444', security: 1, balance: 3000, income: 30 },
+                { name: 'Payment System', owner: '@fintech', security: 4, balance: 12000, income: 120 },
+                { name: 'Dating App', owner: '@coder777', security: 2, balance: 7500, income: 75 },
+                { name: 'Food Delivery', owner: '@foodtech', security: 1, balance: 4000, income: 40 },
+                { name: 'Crypto Wallet', owner: '@cryptodev', security: 5, balance: 25000, income: 250 },
+                { name: 'Streaming App', owner: '@mediadev', security: 3, balance: 15000, income: 150 },
+                { name: 'Super App', owner: '@roluxy', security: 10, balance: 1000000, income: 10000 }
+            ];
+
+            // Sort targets by security level
+            return targets.sort((a, b) => a.security - b.security);
+        }
+
+        function showHackList() {
+            console.log('Showing hack list popup...'); // Debug log
+            const hackableTargets = getHackableTargets();
+            const targetsList = document.getElementById('hackTargetsList');
+            const overlay = document.getElementById('hackListOverlay');
+
+            targetsList.innerHTML = hackableTargets.map(target => {
+                const baseHackCost = 100;
+                let hackCost = baseHackCost * (target.security * 1.5);
+                // Ensure minimum hack cost is $1
+                if (target.security <= 0.01) {
+                    hackCost = 1;
+                }
+                return `
+                    <div class="hack-target">
+                        <div class="hack-target-info">
+                            <div class="hack-target-name">${target.name}</div>
+                            <div class="hack-target-stats">
+                                👤 ${target.owner} | 🔒 Security: ${target.security} | 💰 Cost: $${formatBalance(hackCost)}
+                            </div>
+                        </div>
+                        <button class="hack-button" onclick="attemptHack(${JSON.stringify(target)}, ${hackCost})">
+                            Hack
+                        </button>
+                    </div>
+                `;
+            }).join('');
+
+            overlay.style.display = 'block';
+        }
+
+        function closeHackList() {
+            document.getElementById('hackListOverlay').style.display = 'none';
+        }
+
+        function attemptHack(target, hackCost) {
+            // Calculate hack cost based on target's security level
+            const baseHackCost = 100;
+            let actualHackCost = baseHackCost * (target.security * 1.5);
+            // Ensure minimum hack cost is $1
+            if (target.security <= 0.01) {
+                actualHackCost = 1;
+            }
+
+            if (userBalance < actualHackCost) {
+                Telegram.WebApp.showPopup({
+                    title: 'Insufficient Funds',
+                    message: `You need $${formatBalance(actualHackCost)} to attempt hacking this app.`,
+                    buttons: [{ type: 'ok', text: 'OK' }]
+                });
+                return;
+            }
+
+            // Calculate success chance based on security level and hacker's tools
+            const hackerLevel = gameData.byte.tools.length;
+            const baseSuccessChance = 0.4; // 40% base chance
+            const securityImpact = target.security * 0.15; // Each security level reduces chance by 15%
+            const toolBonus = hackerLevel * 0.1; // Each tool adds 10% chance
+            const successChance = Math.max(0.05, Math.min(0.95, baseSuccessChance - securityImpact + toolBonus));
+
+            // Attempt the hack
+            userBalance -= actualHackCost; // Pay the hack cost
+
+            if (Math.random() < successChance) {
+                // Successful hack
+                const stolenAmount = Math.floor(target.balance * 0.2); // Steal 20% of target's balance
+                userBalance += stolenAmount;
+                gameData.byte.stats.systemsHacked++;
+                gameData.byte.stats.appsHacked++;
+                gameData.byte.stats.operationsCompleted++;
+
+                Telegram.WebApp.showPopup({
+                    title: '✅ Hack Successful!',
+                    message: `You successfully hacked ${target.name}!\n\n💰 Stolen: $${formatBalance(stolenAmount)}\n🎯 Success Rate: ${(successChance * 100).toFixed(1)}%\n💵 Cost: $${formatBalance(actualHackCost)}`,
+                    buttons: [{ type: 'ok', text: 'Nice!' }]
+                });
+            } else {
+                // Failed hack
+                Telegram.WebApp.showPopup({
+                    title: '❌ Hack Failed',
+                    message: `The security system detected your attempt.\n\n💸 Lost: $${formatBalance(actualHackCost)}\n🎯 Success Rate: ${(successChance * 100).toFixed(1)}%`,
+                    buttons: [{ type: 'ok', text: 'Damn!' }]
+                });
+            }
+
+            updateStats();
+            saveGameData();
+        }
+
+        function categoryClicked(name) {
+            console.log('Category clicked:', name, 'Current team:', userTeam);
+            if (name === 'Hack' && userTeam === 'byte') {
+                showHackList();
+            }
+        }
+        
     </script>
 </body>
 
