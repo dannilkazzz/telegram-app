@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Dev vs Byte</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        :root {
+            --background-dark: #1a1a1a;
+            --background-darker: #121212;
+            --background-lighter: #2a2a2a;
+            --accent-color: #22d3ee;
+            --text-primary: #ffffff;
+            --text-secondary: #aaaaaa;
+            --dev-color: #22d3ee;
+            --byte-color: #f87171;
+            --button-gradient: linear-gradient(135deg, #22d3ee, #0891b2);
+            --button-gradient-hover: linear-gradient(135deg, #0891b2, #0e7490);
+            --byte-gradient: linear-gradient(135deg, #f87171, #ef4444);
+            --byte-gradient-hover: linear-gradient(135deg, #ef4444, #dc2626);
+            --border-radius: 8px;
+            --spacing-1: 0.25rem;
+            --spacing-2: 0.5rem;
+            --spacing-3: 0.75rem;
+            --spacing-4: 1rem;
+            --spacing-6: 1.5rem;
+            --spacing-8: 2rem;
+            --spacing-12: 3rem;
+            --spacing-16: 4rem;
+            --container-width: 1200px;
+            --header-height: 60px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: var(--container-width);
+            margin: 0 auto;
+            padding: 0 var(--spacing-4);
+        }
+
+        header {
+            background-color: var(--background-darker);
+            height: var(--header-height);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 100%;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--button-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: var(--spacing-6);
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-link.active {
+            color: var(--accent-color);
+        }
+
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            padding-top: var(--header-height);
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at top right, rgba(34, 211, 238, 0.1), transparent 60%),
+                radial-gradient(circle at bottom left, rgba(248, 113, 113, 0.1), transparent 60%);
+            z-index: 0;
+        }
+
+        .hero-content {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: var(--spacing-8);
+            max-width: 600px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-title {
+            font-size: 3.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+        }
+
+        .hero-title span.dev {
+            color: var(--dev-color);
+        }
+
+        .hero-title span.byte {
+            color: var(--byte-color);
+        }
+
+        .hero-description {
+            font-size: 1.25rem;
+            line-height: 1.6;
+            color: var(--text-secondary);
+        }
+
+        .choose-side {
+            display: flex;
+            gap: var(--spacing-4);
+            margin-top: var(--spacing-4);
+        }
+
+        .side-option {
+            padding: var(--spacing-6);
+            background-color: var(--background-lighter);
+            border-radius: var(--border-radius);
+            width: 180px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--spacing-3);
+        }
+
+        .side-option:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .side-icon {
+            font-size: 2.5rem;
+            margin-bottom: var(--spacing-2);
+        }
+
+        .side-dev .side-icon {
+            color: var(--dev-color);
+        }
+
+        .side-byte .side-icon {
+            color: var(--byte-color);
+        }
+
+        .side-dev {
+            border: 2px solid var(--dev-color);
+        }
+
+        .side-byte {
+            border: 2px solid var(--byte-color);
+        }
+
+        .side-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: var(--spacing-1);
+        }
+
+        .side-dev .side-title {
+            color: var(--dev-color);
+        }
+
+        .side-byte .side-title {
+            color: var(--byte-color);
+        }
+
+        .side-description {
+            font-size: 0.875rem;
+            line-height: 1.4;
+            color: var(--text-secondary);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--spacing-3) var(--spacing-6);
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            text-decoration: none;
+        }
+
+        .btn-dev {
+            background: var(--button-gradient);
+            color: white;
+        }
+
+        .btn-dev:hover {
+            background: var(--button-gradient-hover);
+        }
+
+        .btn-byte {
+            background: var(--byte-gradient);
+            color: white;
+        }
+
+        .btn-byte:hover {
+            background: var(--byte-gradient-hover);
+        }
+
+        .accent-glow {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            z-index: 0;
+            opacity: 0.6;
+        }
+
+        .dev-glow {
+            width: 300px;
+            height: 300px;
+            background-color: rgba(34, 211, 238, 0.2);
+            top: 20%;
+            left: -5%;
+        }
+
+        .byte-glow {
+            width: 250px;
+            height: 250px;
+            background-color: rgba(248, 113, 113, 0.2);
+            bottom: 10%;
+            right: -5%;
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .hero-description {
+                font-size: 1rem;
+            }
+
+            .choose-side {
+                flex-direction: column;
+            }
+
+            .side-option {
+                width: 100%;
+            }
+        }
+
+        /* Game Features Section */
+        .section {
+            padding: var(--spacing-16) 0;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: var(--spacing-8);
+            text-align: center;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 1.125rem;
+            max-width: 700px;
+            margin: 0 auto var(--spacing-12);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: var(--spacing-6);
+        }
+
+        .feature-card {
+            background-color: var(--background-lighter);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-6);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-4);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 2rem;
+            color: var(--accent-color);
+            margin-bottom: var(--spacing-2);
+        }
+
+        .feature-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: var(--spacing-2);
+        }
+
+        .feature-description {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+
+        /* Dev vs Byte comparison */
+        .comparison {
+            display: flex;
+            gap: var(--spacing-6);
+            margin-top: var(--spacing-12);
+        }
+
+        .comparison-column {
+            flex: 1;
+            background-color: var(--background-lighter);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-6);
+        }
+
+        .comparison-dev {
+            border-top: 4px solid var(--dev-color);
+        }
+
+        .comparison-byte {
+            border-top: 4px solid var(--byte-color);
+        }
+
+        .comparison-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: var(--spacing-4);
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-2);
+        }
+
+        .comparison-dev .comparison-title {
+            color: var(--dev-color);
+        }
+
+        .comparison-byte .comparison-title {
+            color: var(--byte-color);
+        }
+
+        .comparison-list {
+            list-style: none;
+        }
+
+        .comparison-item {
+            margin-bottom: var(--spacing-3);
+            padding-left: var(--spacing-4);
+            position: relative;
+            line-height: 1.6;
+            font-size: 0.875rem;
+        }
+
+        .comparison-item::before {
+            content: '•';
+            position: absolute;
+            left: 0;
+        }
+
+        .comparison-dev .comparison-item::before {
+            color: var(--dev-color);
+        }
+
+        .comparison-byte .comparison-item::before {
+            color: var(--byte-color);
+        }
+
+        @media (max-width: 768px) {
+            .comparison {
+                flex-direction: column;
+            }
+        }
+
+        /* How to play section */
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-8);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .step {
+            display: flex;
+            gap: var(--spacing-6);
+            align-items: flex-start;
+        }
+
+        .step-number {
+            background: var(--button-gradient);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+        }
+
+        .step-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: var(--spacing-2);
+        }
+
+        .step-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        /* CTA Section */
+        .cta {
+            text-align: center;
+            padding: var(--spacing-16) 0;
+            background-color: var(--background-lighter);
+            border-radius: var(--border-radius);
+            margin-top: var(--spacing-16);
+        }
+
+        .cta-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: var(--spacing-4);
+        }
+
+        .cta-description {
+            color: var(--text-secondary);
+            font-size: 1.125rem;
+            max-width: 600px;
+            margin: 0 auto var(--spacing-8);
+            line-height: 1.6;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: var(--spacing-4);
+            justify-content: center;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--background-darker);
+            padding: var(--spacing-8) 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            margin-top: var(--spacing-16);
+        }
+
+        .footer-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: var(--spacing-6);
+        }
+
+        .footer-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.2s ease;
+        }
+
+        .footer-link:hover {
+            color: var(--text-primary);
+        }
+
+        .copyright {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Responsive adjustments for mobile */
+        @media (max-width: 768px) {
+            .footer-content {
+                flex-direction: column;
+                gap: var(--spacing-4);
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .cta-title {
+                font-size: 2rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+                gap: var(--spacing-3);
+            }
+
+            .step {
+                flex-direction: column;
+                gap: var(--spacing-3);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">Dev vs Byte</div>
+            <nav class="nav-menu">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#comparison" class="nav-link">Sides</a>
+                <a href="#howtoplay" class="nav-link">How to Play</a>
+            </nav>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="accent-glow dev-glow"></div>
+        <div class="accent-glow byte-glow"></div>
+        <div class="container hero-content">
+            <h1 class="hero-title">Choose your side in the digital battle: <span class="dev">Dev</span> vs <span class="byte">Byte</span></h1>
+            <p class="hero-description">
+                Enter a world where developers and hackers clash for control. Build secure apps or exploit vulnerabilities - which side will you choose?
+            </p>
+
+            <div class="choose-side">
+                <div class="side-option side-dev">
+                    <div class="side-icon">💻</div>
+                    <h3 class="side-title">Developer</h3>
+                    <p class="side-description">Build apps, earn money, strengthen security</p>
+                    <a href="/dev-vs-byte" class="btn btn-dev">Choose Dev</a>
+                </div>
+
+                <div class="side-option side-byte">
+                    <div class="side-icon">🕸️</div>
+                    <h3 class="side-title">Hacker</h3>
+                    <p class="side-description">Find exploits, steal assets, build reputation</p>
+                    <a href="/dev-vs-byte" class="btn btn-byte">Choose Byte</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="section">
+        <div class="container">
+            <h2 class="section-title">Game Features</h2>
+            <p class="section-subtitle">
+                Dev vs Byte offers unique gameplay experiences depending on which side you choose in this digital warfare simulator.
+            </p>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🌐</div>
+                    <h3 class="feature-title">Two Distinct Sides</h3>
+                    <p class="feature-description">
+                        Play as either a Developer building defenses or a Hacker exploiting weaknesses - each with unique abilities and objectives.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <h3 class="feature-title">Economy System</h3>
+                    <p class="feature-description">
+                        Earn and spend virtual currency to upgrade your capabilities, whether you're developing apps or hacking systems.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🏆</div>
+                    <h3 class="feature-title">Leaderboards</h3>
+                    <p class="feature-description">
+                        Compete with other players to climb the global rankings and prove your supremacy in the digital world.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔄</div>
+                    <h3 class="feature-title">Dynamic Gameplay</h3>
+                    <p class="feature-description">
+                        Experience an ever-changing game environment where player actions influence the overall digital ecosystem.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">📱</div>
+                    <h3 class="feature-title">Mobile Friendly</h3>
+                    <p class="feature-description">
+                        Play seamlessly across devices with a responsive design optimized for both desktop and mobile experiences.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔐</div>
+                    <h3 class="feature-title">Security Mechanics</h3>
+                    <p class="feature-description">
+                        Implement or break through various security measures in an authentic simulation of cybersecurity concepts.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="comparison" class="section">
+        <div class="container">
+            <h2 class="section-title">Choose Your Side</h2>
+            <p class="section-subtitle">
+                Each side offers a distinct gameplay experience with unique objectives, abilities, and challenges.
+            </p>
+
+            <div class="comparison">
+                <div class="comparison-column comparison-dev">
+                    <h3 class="comparison-title">
+                        <span class="side-icon">💻</span> Developer Side
+                    </h3>
+                    <ul class="comparison-list">
+                        <li class="comparison-item">Build and deploy applications to generate revenue</li>
+                        <li class="comparison-item">Implement security measures to protect against hacker attacks</li>
+                        <li class="comparison-item">Upgrade infrastructure to increase app performance and income</li>
+                        <li class="comparison-item">Respond to security breaches and patch vulnerabilities</li>
+                        <li class="comparison-item">Collaborate with other developers to create stronger defenses</li>
+                        <li class="comparison-item">Research new technologies to stay ahead of hackers</li>
+                        <li class="comparison-item">Earn reputation by maintaining secure and profitable apps</li>
+                    </ul>
+                </div>
+
+                <div class="comparison-column comparison-byte">
+                    <h3 class="comparison-title">
+                        <span class="side-icon">🕸️</span> Hacker Side
+                    </h3>
+                    <ul class="comparison-list">
+                        <li class="comparison-item">Discover and exploit vulnerabilities in developer apps</li>
+                        <li class="comparison-item">Steal digital assets and cryptocurrency from applications</li>
+                        <li class="comparison-item">Develop specialized hacking tools to break through security</li>
+                        <li class="comparison-item">Establish backdoors for persistent access to compromised systems</li>
+                        <li class="comparison-item">Form hacker collectives to target high-value applications</li>
+                        <li class="comparison-item">Evade detection while maintaining access to compromised systems</li>
+                        <li class="comparison-item">Build reputation in the underground community with successful hacks</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="howtoplay" class="section">
+        <div class="container">
+            <h2 class="section-title">How To Play</h2>
+            <p class="section-subtitle">
+                Getting started is easy - follow these simple steps to begin your journey in the Dev vs Byte world.
+            </p>
+
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Choose Your Side</h3>
+                        <p class="step-description">
+                            Decide whether you want to play as a Developer building and protecting apps or a Hacker finding and exploiting vulnerabilities. Each offers a unique gameplay experience.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Learn the Basics</h3>
+                        <p class="step-description">
+                            Complete the introductory tutorial to understand the game mechanics specific to your chosen side. Developers will learn about building apps and security, while Hackers will master exploitation techniques.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Start Building or Hacking</h3>
+                        <p class="step-description">
+                            Begin with simple projects to earn initial resources. Developers can create basic apps, while Hackers can attempt exploits on vulnerable targets.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Upgrade Your Capabilities</h3>
+                        <p class="step-description">
+                            Use earned resources to improve your skills and tools. Developers can enhance security and performance, while Hackers can acquire more sophisticated exploitation techniques.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <h3 class="step-title">Compete and Collaborate</h3>
+                        <p class="step-description">
+                            Join the community to compete on leaderboards or form alliances with other players. The digital ecosystem evolves based on the collective actions of all players.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <div class="container">
+            <h2 class="cta-title">Ready to Enter the Digital Battlefield?</h2>
+            <p class="cta-description">
+                Choose your side now and begin your journey in the struggle between developers and hackers. Will you build and protect, or exploit and infiltrate?
+            </p>
+
+            <div class="cta-buttons">
+                <a href="/dev-vs-byte" class="btn btn-dev">Play as Developer</a>
+                <a href="/dev-vs-byte" class="btn btn-byte">Play as Hacker</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-links">
+                <a href="#" class="footer-link">About</a>
+                <a href="#" class="footer-link">Privacy</a>
+                <a href="#" class="footer-link">Terms</a>
+                <a href="#" class="footer-link">Contact</a>
+            </div>
+            <div class="copyright">
+                © 2025 Dev vs Byte Game. All rights reserved.
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>
